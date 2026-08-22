@@ -1,84 +1,84 @@
 # 🎬 Guion — Demo de 3 minutos (Caja)
 
-> Estilo hook → problema → demo en vivo → impacto. En español (permitido por las bases).
-> Audio en español; el producto es la estrella, no la narrativa.
+> **Tesis**: NO es "otra app de pagos con IA". Es **la caja registradora de tu negocio en USD₮**.
+> El juez debe ver en los primeros 20 segundos un **negocio cobrando** — no un chat.
+> Audio en español. Producto = protagonista.
 
 ---
 
-## Hook (0:00–0:20)
+## 📋 Setup (antes de grabar)
 
-**VO**: *"Tu negocio opera en USD₮. Pero cobrar es un dolor, enviar es opaco,
-y operar la wallet es técnica. Caja convierte la wallet de tu negocio en una
-caja registradora — con un agente que la opera por ti."*
-
-**Pantalla**: dashboard de Caja (tema oscuro, verde neón). Se ve el saldo
-USDT arriba.
-
----
-
-## Demo 1 — Cobrar (0:20–1:10)
-
-1. Tab **Cobrar**. Escribimos **$25.00**.
-2. Apretamos **Generar QR** → aparece un QR grande con la dirección y el monto.
-3. **(En pantalla dividida o cortando a otra ventana)** El cliente —una segunda
-   wallet WDK local— escanea/paga: `wdk send --to <caja> --amount 25 --token usdt`.
-4. Volvemos a la pantalla del negocio: **"Esperando pago…"** con pulso.
-5. **El QR cambia a verde: "¡Pago recibido! +$25.00 USDT"** con check animado.
-6. El saldo del header sube.
-
-**Texto en pantalla (VO)**: *"El cobro se confirma con el receipt on-chain —
-nada de simulaciones."*
+- Wallets (testnet Sepolia, ya fondeadas):
+  - **CAJA** (negocio): `0x5A6B8B635b6674681682dB4F713faF4001ac6Cb2` — ~93 USDT
+  - **PAGADOR** (cliente): `0x66dEc61c81105249fD38480157C37AcFb45A1a8b` — ~988 USDT
+- Servicios corriendo: backend :8788 + frontend :3000 (localhost)
+- **Grabar con** OBS (o similar) sobre el navegador, pantalla completa, resolución 1440p+
+- Preparar terminal con el comando de pago del pagador copiado (para el corte de Cobrar)
 
 ---
 
-## Demo 2 — Enviar con el agente (1:10–2:20)
+## 0:00 — Hook (15s)
 
-1. Tab **Agente**. Escribimos en el chat:
-   *"Págale $10 USDT a mi proveedor 0x66dE…A1a8b"*
-2. El agente responde (DeepSeek vía wdk-mcp) y **muestra la propuesta**:
-   *"¿Confirmas el envío de 10 USDT a 0x66dE…A1a8b? (fee estimado)"*
-3. Apretamos **Confirmar**.
-4. Vemos el **tracking estilo paquetería**: `Enviado → Confirmado` (receipt
-   on-chain verificado) → check verde.
-5. El ledger registra la operación.
+**Voz**: "En América Latina, si tienes un negocio y quieres operar en dólares... es un problema. Los bancos te piden historial. Las remesas te comen 10%. Y si aceptas cripto... no tienes caja, tienes una wallet complicada."
 
-**Texto en pantalla (VO)**: *"El agente opera la caja vía el MCP server del
-WDK — pero nunca mueve dinero sin tu confirmación."*
+**Pantalla**: fondo oscuro + logo Caja + tipografía grande: "Tu negocio en USD₮".
 
 ---
 
-## Impacto y cierre (2:20–3:00)
+## 0:15 — Cobrar (40s) ⭐ EL MOMENTO ESTRELLA
 
-- *"Una caja registradora en USD₮, non-custodial, multi-chain — para el
-  negocio de la esquina en LATAM."*
-- *"Cobro con QR, remesas con tracking, y un agente que trabaja tu caja."*
-- *"Construido sobre el WDK CLI y su MCP server como core building block:
-  cada operación es un comando `wdk`, y el agente conversa con la wallet vía
-  MCP."*
-- Cierre visual: QR verde + check + log del ledger.
+**Voz**: "Caja convierte tu wallet en una caja registradora. Abres la vista Cobrar, pones el monto... y listo: tu cliente paga con lo que sea que tenga — hasta una wallet que nadie instaló para esto."
 
-**Pantalla final**: repo https://github.com/macarenadevai/caja-usdt + demo.
+**Pantalla** (frontend :3000 → tab Cobrar):
+1. Monto `12.50` → se genera el **QR** al instante
+2. *Corte*: terminal → el cliente (PAGADOR) ejecuta su pago:
+   ```
+   wdk send --network sepolia --wallet pagador --to 0x5A6B8B... --amount 12.5 --token usdt
+   ✓ Transacción enviada: 0x...
+   ```
+3. **Volver al dashboard**: el QR se cierra solo → **"✅ Pago recibido +12.50 USDT"** en vivo
+4. Muestra el saldo subir (ledger/header)
+
+**Clave**: el pago se detecta SOLO (eventos on-chain, no un webhook inventado). Eso se dice en una frase.
 
 ---
 
-## Notas de producción
+## 0:55 — Enviar (25s)
 
-| Elemento | Detalle |
-|----------|---------|
-| Duración | 2:45–3:00 |
-| Resolución | 1920×1080 |
-| Grabación | OBS o `ffmpeg` screen capture; recortes del pago con zoom |
-| Wallet del cliente | WDK wallet local `pagador` (passphrase demo) — el pago es real on-chain |
-| Fallback agente | Si DeepSeek falla en vivo, el chat tiene respuesta offline explicando el dry-run |
-| Fallback demo | Si el fondeo no alcanzó: usar la otra wallet para el pago (caja → pagador → caja) |
-| Música | Ninguna o ambiente muy baja (mejor sin música: más serio) |
-| Captions | Sí — subtítulos para claridad (negocio ruidoso) |
+**Voz**: "Y cuando el negocio tiene que mandar dinero —una remesa, un proveedor— Caja lo envía con tracking. Como un paquete, pero para dinero."
 
-## Comandos del cliente (para el corte del pago)
+**Pantalla** (tab Enviar):
+1. Dirección + monto `8` → confirmar
+2. **Stepper visible**: `Enviado → Confirmado` (mientras la red confirma)
+3. "Mira: la transacción quedó confirmada en la cadena. Tú y tu proveedor ven lo mismo."
 
-```bash
-# Wallet del cliente (pagador) — se muestra en el video
-export WDK_PASSPHRASE="pagador-demo-2026"
-wdk wallet unlock --name pagador
-wdk send --network sepolia --wallet pagador --to 0x5A6B8B635b6674681682dB4F713faF4001ac6Cb2 --amount 25 --token usdt
-```
+---
+
+## 1:20 — Delegar (40s) — "el agente de caja"
+
+**Voz**: "Y lo mejor: no tienes que tocar la caja. Le hablas a tu agente de caja... y él propone, tú confirmas."
+
+**Pantalla** (tab Agente):
+1. Escribir: *"manda 5 USDT a 0x66dE... por la materia prima"*
+2. El agente responde con la **propuesta**: monto, destino, token → botón **Confirmar**
+3. Click → envío real → **tracking confirmado** en el chat
+4. **Frase clave**: "El agente propone. El humano decide. Así opera la caja: contigo siempre al mando."
+
+---
+
+## 2:00 — Impacto + cierre (30s)
+
+**Voz**: "Una caja. Un solo libro de cuentas. Todo tu negocio en USD₮: lo que cobras, lo que envías, lo que delegas. Sin bancos, sin intermediarios, sin que tu cliente sepa siquiera qué es una blockchain."
+
+**Pantalla**: ledger final (todas las operaciones: cobro +12.50, envíos confirmados) → logo + "Caja — tu negocio en USD₮ · construido con Tether WDK".
+
+---
+
+## 🎥 Notas de producción
+
+1. **Ensayo en frío antes de grabar**: corre `~/aleph-hackathon/scripts/ensayo.sh` 2 veces — el flujo debe salir perfecto (pago detectado <10s).
+2. **El corte del pago del cliente**: el pago del PAGADOR se hace con CLI en otra terminal/ventana — cortar a pantalla completa del navegador mientras el QR está vivo.
+3. **Timing**: si el pago tarda >15s en confirmarse, espera a que el "Pago recibido" aparezca ANTES de avanzar al siguiente segmento (el detector sondea cada 5s, normalmente es <10s).
+4. **Fondo**: mantener la estética del producto (dark + verde neón). No mostrar código del server en cámara.
+5. **Fallback**: si el agente fallara en vivo (LLM lento), cortar al flujo Enviar y mencionar el agente de pasada — NUNCA dejar un silencio.
+6. **Duración dura**: 2:30-3:00. Si se pasa, recortar Enviar a 15s (el stepper se entiende igual).
