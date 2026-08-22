@@ -38,9 +38,9 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#0A0A0A] text-white">
+    <main className="min-h-dvh bg-[#0A0A0A] text-white pb-[max(4rem,env(safe-area-inset-bottom))]">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-[#1A1A1A] bg-[#0A0A0A]/80 backdrop-blur">
+      <header className="sticky top-0 z-10 border-b border-[#1A1A1A] bg-[#0A0A0A]/80 backdrop-blur pt-[env(safe-area-inset-top)]">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#00FFAA] text-lg font-black text-black">
@@ -81,7 +81,7 @@ export default function Home() {
       </nav>
 
       {/* Contenido */}
-      <div className="mx-auto max-w-3xl px-4 pt-6 pb-16">
+      <div key={tab} className="mx-auto max-w-3xl px-4 pt-6 pb-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
         {tab === "cobrar" && <Pdv />}
         {tab === "enviar" && <Enviar />}
         {tab === "agente" && <Agente />}

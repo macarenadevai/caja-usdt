@@ -180,7 +180,9 @@ export default function Enviar() {
                     <div key={s.key} className="flex flex-1 flex-col items-center gap-2">
                       <div className="flex w-full items-center">
                         {i > 0 && (
-                          <div className={`h-0.5 flex-1 ${done ? "bg-[#00FFAA]" : "bg-[#1A1A1A]"}`} />
+                          <div className="h-0.5 flex-1 overflow-hidden bg-[#1A1A1A]">
+                            <div className={`h-full bg-[#00FFAA] ${done ? "animate-track-fill" : ""}`} />
+                          </div>
                         )}
                         <div
                           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 ${

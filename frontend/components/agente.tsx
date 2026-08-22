@@ -138,7 +138,12 @@ export default function Agente() {
         {loading && (
           <div className="flex justify-start">
             <div className="flex items-center gap-2 rounded-2xl rounded-bl-md border border-[#1A1A1A] bg-[#0A0A0A] px-4 py-3 text-sm text-zinc-400">
-              <Loader2 className="h-4 w-4 animate-spin" /> Pensando…
+              <div className="flex items-center gap-1">
+                <span className="typing-dot h-1.5 w-1.5 rounded-full bg-[#00FFAA]" />
+                <span className="typing-dot h-1.5 w-1.5 rounded-full bg-[#00FFAA]" />
+                <span className="typing-dot h-1.5 w-1.5 rounded-full bg-[#00FFAA]" />
+              </div>
+              <span className="ml-1">Caja está pensando…</span>
             </div>
           </div>
         )}

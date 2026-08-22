@@ -104,13 +104,14 @@ export default function Pdv() {
                 {invoice.token.toUpperCase()} · {invoice.network}
               </p>
 
-              <div className="mx-auto mt-6 w-fit rounded-xl bg-white p-4">
+              <div className="mx-auto mt-6 w-fit rounded-xl bg-white p-4 animate-pulse-ring">
                 <QRCodeSVG
                   value={invoice.qrPayload || invoice.address}
                   size={200}
                   fgColor="#0A0A0A"
                   bgColor="#FFFFFF"
                   level="M"
+                  className="h-auto w-[200px] max-w-full"
                 />
               </div>
 
@@ -140,17 +141,21 @@ export default function Pdv() {
             </>
           ) : (
             <div className="py-6">
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#00FFAA]/10 ring-4 ring-[#00FFAA]/30">
-                <Check className="h-10 w-10 text-[#00FFAA]" />
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#00FFAA]/10 ring-4 ring-[#00FFAA]/30 animate-in zoom-in-0 fade-in-0 duration-500 ease-out">
+                <Check className="h-10 w-10 text-[#00FFAA] animate-in zoom-in-0 duration-500 delay-150" />
               </div>
-              <p className="mt-6 text-2xl font-black text-[#00FFAA]">¡Pago recibido!</p>
-              <p className="mt-2 text-4xl font-black text-white">{formatUsd(invoice.amount)}</p>
-              <p className="mt-1 text-sm text-zinc-500">
+              <p className="mt-6 text-2xl font-black text-[#00FFAA] animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150">
+                ¡Pago recibido!
+              </p>
+              <p className="mt-2 text-4xl font-black text-white animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200">
+                {formatUsd(invoice.amount)}
+              </p>
+              <p className="mt-1 text-sm text-zinc-500 animate-in fade-in duration-500 delay-300">
                 {invoice.txHash ? `Tx: ${shortAddress(invoice.txHash)}` : "Confirmado en Sepolia"}
               </p>
               <button
                 onClick={reset}
-                className="mt-8 w-full rounded-xl bg-[#00FFAA] py-3 font-bold text-black transition hover:bg-[#00CC88]"
+                className="mt-8 w-full rounded-xl bg-[#00FFAA] py-3 font-bold text-black transition hover:bg-[#00CC88] animate-in fade-in slide-in-from-bottom-2 duration-500 delay-400"
               >
                 Hacer otro cobro
               </button>
