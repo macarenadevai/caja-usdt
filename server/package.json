@@ -1,0 +1,17 @@
+{
+  "name": "caja-server",
+  "version": "1.0.0",
+  "description": "Backend Caja — WDK CLI wrapper + API REST + agente AI",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}
