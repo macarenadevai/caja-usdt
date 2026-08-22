@@ -75,7 +75,7 @@ export default function Pdv() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && generate()}
-              className="w-full bg-transparent text-4xl font-bold text-white outline-none placeholder:text-zinc-700"
+              className="w-full bg-transparent text-4xl font-bold text-white outline-none placeholder:text-zinc-500"
               autoFocus
             />
           </div>

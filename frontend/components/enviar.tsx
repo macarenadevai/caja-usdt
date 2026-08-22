@@ -89,7 +89,7 @@ export default function Enviar() {
             placeholder="0x…"
             value={to}
             onChange={(e) => setTo(e.target.value)}
-            className="w-full rounded-xl border border-[#1A1A1A] bg-[#0A0A0A] px-4 py-3 font-mono text-sm text-white outline-none placeholder:text-zinc-700 focus:border-[#00FFAA]"
+            className="w-full rounded-xl border border-[#1A1A1A] bg-[#0A0A0A] px-4 py-3 font-mono text-sm text-white outline-none placeholder:text-zinc-500 focus:border-[#00FFAA]"
           />
           <label className="mb-2 mt-4 block text-sm font-medium text-zinc-400" htmlFor="monto-enviar">
             Monto (USD₮)
@@ -106,7 +106,7 @@ export default function Enviar() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submit()}
-              className="w-full bg-transparent text-4xl font-bold text-white outline-none placeholder:text-zinc-700"
+              className="w-full bg-transparent text-4xl font-bold text-white outline-none placeholder:text-zinc-500"
             />
           </div>
           {error && (
@@ -131,7 +131,7 @@ export default function Enviar() {
             <p className="text-sm uppercase tracking-widest text-zinc-500">Confirmar envío</p>
             <p className="mt-4 text-5xl font-black text-white">{formatUsd(Number(amount))}</p>
             <p className="mt-2 break-all font-mono text-sm text-zinc-400">{shortAddress(to)}</p>
-            <p className="mt-2 text-xs text-zinc-600">Red: Sepolia · Token: USDT</p>
+            <p className="mt-2 text-xs text-zinc-400">Red: Sepolia · Token: USDT</p>
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setConfirming(false)}
@@ -167,7 +167,7 @@ export default function Enviar() {
               <p className="text-sm uppercase tracking-widest text-zinc-500">Envío en camino</p>
               <p className="mt-2 text-4xl font-black text-white">{formatUsd(transfer.amount)}</p>
               <p className="mt-1 break-all font-mono text-sm text-zinc-400">→ {shortAddress(transfer.to)}</p>
-              <p className="mt-1 text-xs text-zinc-600">
+              <p className="mt-1 text-xs text-zinc-400">
                 {transfer.txHash ? `Tx: ${shortAddress(transfer.txHash)}` : "Firmando…"}
               </p>
 
@@ -190,7 +190,7 @@ export default function Enviar() {
                               ? "border-[#00FFAA] bg-[#00FFAA] text-black"
                               : active
                                 ? "border-[#00FFAA] text-[#00FFAA]"
-                                : "border-[#1A1A1A] text-zinc-600"
+                                : "border-[#1A1A1A] text-zinc-400"
                           }`}
                         >
                           {done ? (

@@ -21,6 +21,9 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "Caja",
   },
+  other: {
+    "apple-mobile-web-app-capable": "yes",
+  },
   icons: {
     apple: "/apple-touch-icon.png",
   },

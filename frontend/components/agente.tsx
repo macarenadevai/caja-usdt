@@ -158,7 +158,7 @@ export default function Agente() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && send()}
             disabled={loading}
-            className="flex-1 rounded-xl border border-[#1A1A1A] bg-[#0A0A0A] px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-600 focus:border-[#00FFAA] disabled:opacity-50"
+            className="flex-1 rounded-xl border border-[#1A1A1A] bg-[#0A0A0A] px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500 focus:border-[#00FFAA] disabled:opacity-50"
           />
           <button
             onClick={() => send()}
