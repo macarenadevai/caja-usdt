@@ -119,6 +119,8 @@ export async function processMessage(text, history = []) {
         } catch {
           args = {};
         }
+        // El MCP server de WDK valida amount como STRING (el schema dice number — bug upstream)
+        args.amount = String(args.amount ?? "");
         const preview = await callMcp("send_token", { ...args, dryRun: true });
         if (preview.isError) {
           messages.push({ role: "assistant", content: null, tool_calls: msg.tool_calls });
@@ -187,7 +189,15 @@ export async function confirmProposal(proposalId) {
   if (proposal.status !== "pending") return { ok: false, message: "Propuesta ya procesada" };
 
   await connectMcp();
-  const res = await callMcp("send_token", proposal.args);
+  // Construir args desde los campos de la propuesta (robusto: no depender de args del LLM)
+  const args = {
+    network: proposal.network,
+    token: proposal.token || "usdt",
+    to: proposal.to,
+    amount: String(proposal.amount),
+    dryRun: false,
+  };
+  const res = await callMcp("send_token", args);
   if (res.isError) {
     state.setProposalStatus(proposalId, "cancelled");
     return { ok: false, message: `El envío falló: ${res.text.slice(0, 200)}` };

@@ -20,6 +20,7 @@ function defaultState() {
     transfers: [],    // {id, to, amount, token, network, status, txHash?, createdAt, confirmedAt?, error?}
     proposals: [],    // {id, text, to, amount, token, network, status: pending|confirmed|cancelled, createdAt, executedAt?}
     ledger: [],       // {type, id, title, amount, token, status, createdAt, meta?}
+    meta: {},         // key/value (último bloque escaneado, etc.)
   };
 }
 
@@ -77,7 +78,7 @@ export function addInvoice({ amount, token, network, address }) {
 }
 
 export function getInvoice(id) {
-  return S.invoices.find((i) => i.id === id) || null;
+  return loadState().invoices.find((i) => i.id === id) || null;
 }
 
 export function getPendingInvoices() {
@@ -95,6 +96,17 @@ export function markInvoicePaid(id, { txHash = null } = {}) {
   if (entry) entry.status = "paid";
   saveState();
   return inv;
+}
+
+// ---- Meta (avance de escaneo, etc.) ----
+export function getMeta(key, fallback = null) {
+  return loadState().meta?.[key] ?? fallback;
+}
+
+export function setMeta(key, value) {
+  const state = loadState();
+  state.meta[key] = value;
+  saveState();
 }
 
 // ---- Transfers (envíos con tracking) ----
