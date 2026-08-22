@@ -21,7 +21,7 @@
 
 **Voz**: "En América Latina, si tienes un negocio y quieres operar en dólares... es un problema. Los bancos te piden historial. Las remesas te comen 10%. Y si aceptas cripto... no tienes caja, tienes una wallet complicada."
 
-**Pantalla**: fondo oscuro + logo Caja + tipografía grande: "Tu negocio en USD₮".
+**Pantalla**: fondo oscuro + logo Caja + tipografía grande: "Tu negocio en USD₮". En el celular: se instala la PWA (añadir a pantalla de inicio) → abre fullscreen. **Frase clave: "Tu celular es tu terminal punto de venta."**
 
 ---
 

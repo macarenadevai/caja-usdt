@@ -7,7 +7,7 @@ Caja convierte la wallet de un negocio en una caja registradora en USD₮:
 paquetería, y **delega** la operación a un agente AI que conecta al WDK a
 través de MCP. Todo non-custodial, multi-chain, sin bancos.
 
-> Demo: video de 3 min en `DEMO.md` (próximamente).
+> Demo: video de 3 min en `DEMO.md`.
 
 ---
 
@@ -31,6 +31,7 @@ Una sola app con **una sola wallet** (creada por el WDK CLI) y tres vistas:
 | 💵 **Cobrar** | PDV cripto: monto → QR → el cliente paga → confirmación en vivo | Detector de pagos que verifica receipts on-chain cada 5s |
 | 📦 **Enviar** | Remesas con tracking (enviado → confirmado → fallido) | `wdk send` + verificación de receipt en Sepolia |
 | 🤖 **Agente** | Chat que opera la caja: saldo, envíos, con **confirmación humana** | `wdk-mcp` + DeepSeek (function calling) |
+| 📱 **PWA** | Instalable: tu celular es tu terminal punto de venta | Manifest + Service Worker (offline shell) |
 
 ### Por qué el WDK es el core
 
