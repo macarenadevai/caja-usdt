@@ -25,7 +25,10 @@ const WDK_BIN =
 
 export const WALLET = process.env.CAJA_WALLET || "caja";
 export const DEFAULT_NETWORK = process.env.NETWORK || "sepolia";
-export const DEFAULT_TOKEN = process.env.DEFAULT_TOKEN || "usdt";
+// OJO: nombre SIN "TOKEN" — dotenv v17 enmascara variables cuyo nombre
+// contiene TOKEN/KEY/SECRET y reescribe el .env redactado (corrompe runtime).
+// Ver skill research/engram-patterns-adoption → pitfall dotenv v17.
+export const DEFAULT_TOKEN = process.env.DEFAULT_TKN || "usdt";
 
 /**
  * Ejecuta un comando wdk y devuelve el JSON parseado.

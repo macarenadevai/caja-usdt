@@ -9,11 +9,13 @@
 ## 📋 Setup (antes de grabar)
 
 - Wallets (testnet Sepolia, ya fondeadas):
-  - **CAJA** (negocio): `0x5A6B8B635b6674681682dB4F713faF4001ac6Cb2` — ~93 USDT
-  - **PAGADOR** (cliente): `0x66dEc61c81105249fD38480157C37AcFb45A1a8b` — ~988 USDT
-- Servicios corriendo: backend :8788 + frontend :3000 (localhost)
+  - **CAJA** (negocio): `0x5A6B8B635b6674681682dB4F713faF4001ac6Cb2` — ~90 USDT
+  - **PAGADOR** (cliente): `0x66dEc61c81105249fD38480157C37AcFb45A1a8b` — ~985 USDT
+- Servicios corriendo: backend :8788 + frontend :3000
+  - Landing en `:3000/` · **App en `:3000/app`**
 - **Grabar con** OBS (o similar) sobre el navegador, pantalla completa, resolución 1440p+
 - Preparar terminal con el comando de pago del pagador copiado (para el corte de Cobrar)
+- **Sonido activado**: el *cha-ching* de la caja es parte del momento estrella
 
 ---
 
@@ -21,7 +23,7 @@
 
 **Voz**: "En América Latina, si tienes un negocio y quieres operar en dólares... es un problema. Los bancos te piden historial. Las remesas te comen 10%. Y si aceptas cripto... no tienes caja, tienes una wallet complicada."
 
-**Pantalla**: abre la **landing** (`:3000/`) — logo Caja + "Tu celular es tu terminal de cobro" + el mockup del QR → clic "Abrir la app" → entra a la app (`:3000/app`). En el celular: se instala la PWA (añadir a pantalla de inicio) → abre fullscreen. **Frase clave: "Tu celular es tu terminal punto de venta."**
+**Pantalla**: abre la **landing** (`:3000/`) — logo ₮ Caja + "Tu celular es tu terminal de cobro" + el **teléfono-terminal** (la app de Caja corriendo en un iPhone mockup). Scroll rápido: el problema → cómo funciona. Clic "Abrir la app" → entra a la app (`:3000/app`). **Frase clave: "Tu celular es tu terminal punto de venta."**
 
 ---
 
@@ -30,13 +32,13 @@
 **Voz**: "Caja convierte tu wallet en una caja registradora. Abres la vista Cobrar, pones el monto... y listo: tu cliente paga con lo que sea que tenga — hasta una wallet que nadie instaló para esto."
 
 **Pantalla** (frontend `:3000/app` → tab Cobrar):
-1. Monto `12.50` → se genera el **QR** al instante
+1. Monto `12.50` → se genera el **QR** al instante (pantalla-terminal: monto gigante + QR)
 2. *Corte*: terminal → el cliente (PAGADOR) ejecuta su pago:
    ```
    wdk send --network sepolia --wallet pagador --to 0x5A6B8B... --amount 12.5 --token usdt
    ✓ Transacción enviada: 0x...
    ```
-3. **Volver al dashboard**: el QR se cierra solo → **"✅ Pago recibido +12.50 USDT"** en vivo
+3. **Volver al dashboard**: el QR se cierra solo → **"✅ Pago recibido +12.50 USDT"** en vivo + **🎵 cha-ching** (sonido de caja registradora)
 4. Muestra el saldo subir (ledger/header)
 
 **Clave**: el pago se detecta SOLO (eventos on-chain, no un webhook inventado). Eso se dice en una frase.
@@ -51,6 +53,7 @@
 1. Dirección + monto `8` → confirmar
 2. **Stepper visible**: `Enviado → Confirmado` (mientras la red confirma)
 3. "Mira: la transacción quedó confirmada en la cadena. Tú y tu proveedor ven lo mismo."
+4. **Bonus**: mostrar el **historial de remesas** que quedó debajo (todas las operaciones con su estado)
 
 ---
 
@@ -61,7 +64,7 @@
 **Pantalla** (tab Agente):
 1. Escribir: *"manda 5 USDT a 0x66dE... por la materia prima"*
 2. El agente responde con la **propuesta**: monto, destino, token → botón **Confirmar**
-3. Click → envío real → **tracking confirmado** en el chat
+3. Click → envío real → **tracking confirmado** en el chat (sent → confirmed en vivo)
 4. **Frase clave**: "El agente propone. El humano decide. Así opera la caja: contigo siempre al mando."
 
 ---
@@ -70,7 +73,7 @@
 
 **Voz**: "Una caja. Un solo libro de cuentas. Todo tu negocio en USD₮: lo que cobras, lo que envías, lo que delegas. Sin bancos, sin intermediarios, sin que tu cliente sepa siquiera qué es una blockchain."
 
-**Pantalla**: ledger final (todas las operaciones: cobro +12.50, envíos confirmados) → logo + "Caja — tu negocio en USD₮ · construido con Tether WDK".
+**Pantalla**: historial/ledger final (cobro +12.50, envíos confirmados) → volver a la **landing** → logo ₮ + "Caja — tu negocio en USD₮ · construido con Tether WDK".
 
 ---
 
