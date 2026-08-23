@@ -2,12 +2,41 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { api, type Transfer, formatUsd, shortAddress } from "@/lib/api";
-import { Check, CircleAlert, Loader2, RotateCcw, Send, TriangleAlert } from "lucide-react";
+import { Check, CircleAlert, Clock, Loader2, RotateCcw, Send, TriangleAlert } from "lucide-react";
 
 const STEPS = [
   { key: "sent", label: "Enviado" },
   { key: "confirmed", label: "Confirmado" },
 ] as const;
+
+interface LedgerEntry {
+  type: "invoice" | "send";
+  id: string;
+  title: string;
+  amount: number;
+  token: string;
+  status: string;
+  createdAt: string;
+}
+
+function timeAgo(iso: string) {
+  const s = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
+  if (s < 60) return "ahora";
+  if (s < 3600) return `hace ${Math.floor(s / 60)} min`;
+  return `hace ${Math.floor(s / 3600)} h`;
+}
+
+const STATUS_STYLE: Record<string, string> = {
+  confirmed: "bg-[#00FFAA]/10 text-[#00FFAA]",
+  sent: "bg-amber-400/10 text-amber-400",
+  failed: "bg-red-400/10 text-red-400",
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  confirmed: "Confirmado",
+  sent: "En camino",
+  failed: "Fallido",
+};
 
 export default function Enviar() {
   const [to, setTo] = useState("");
@@ -16,6 +45,30 @@ export default function Enviar() {
   const [confirming, setConfirming] = useState(false);
   const [sending, setSending] = useState(false);
   const [transfer, setTransfer] = useState<Transfer | null>(null);
+  const [history, setHistory] = useState<LedgerEntry[]>([]);
+
+  // Historial de remesas (ledger del server, polling cada 8s)
+  useEffect(() => {
+    let alive = true;
+    const refresh = async () => {
+      try {
+        const { transactions } = await api.transactions();
+        if (!alive) return;
+        const sends = (transactions as unknown as LedgerEntry[])
+          .filter((t) => t.type === "send")
+          .slice(0, 6);
+        setHistory(sends);
+      } catch {
+        /* backend apagado */
+      }
+    };
+    refresh();
+    const t = setInterval(refresh, 8000);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+  }, []);
 
   const submit = useCallback(() => {
     const amt = Number(amount);
@@ -227,6 +280,33 @@ export default function Enviar() {
           >
             <RotateCcw className="h-3.5 w-3.5" /> Nuevo envío
           </button>
+        </div>
+      )}
+      {/* Historial de remesas */}
+      {!transfer && history.length > 0 && (
+        <div className="mt-6">
+          <p className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-500">
+            <Clock className="h-4 w-4" /> Historial de envíos
+          </p>
+          <div className="space-y-2">
+            {history.map((h) => {
+              const style = STATUS_STYLE[h.status] || STATUS_STYLE.sent;
+              return (
+                <div
+                  key={h.id}
+                  className="flex items-center justify-between rounded-xl border border-[#1A1A1A] bg-[#111111] px-4 py-3"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-bold text-white tabular-nums">{formatUsd(h.amount)}</p>
+                    <p className="text-xs text-zinc-500">{timeAgo(h.createdAt)}</p>
+                  </div>
+                  <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${style}`}>
+                    {STATUS_LABEL[h.status] || h.status}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

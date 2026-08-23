@@ -42,18 +42,18 @@ export default function Home() {
       {/* Header */}
       <header className="sticky top-0 z-10 border-b border-[#1A1A1A] bg-[#0A0A0A]/80 backdrop-blur pt-[env(safe-area-inset-top)]">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#00FFAA] text-lg font-black text-black">
-              C
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#00FFAA] text-lg font-black text-black shadow-[0_0_20px_rgba(0,255,170,0.4)]">
+              ₮
             </div>
             <div>
               <h1 className="text-lg font-black leading-none">Caja</h1>
-              <p className="text-xs text-zinc-500">tu negocio en USD₮</p>
+              <p className="mt-0.5 text-xs text-zinc-500">tu negocio en USD₮</p>
             </div>
           </div>
           <div className="text-right">
             <p className="text-[11px] uppercase tracking-widest text-zinc-500">Saldo</p>
-            <p className="font-mono text-lg font-bold text-[#00FFAA]">{balance ?? "—"}</p>
+            <p className="font-mono text-lg font-bold tabular-nums text-[#00FFAA]">{balance ?? "—"}</p>
           </div>
         </div>
       </header>

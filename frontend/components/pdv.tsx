@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { api, type Invoice, formatUsd, shortAddress } from "@/lib/api";
+import { playCashSound } from "@/lib/sound";
 import { Check, Copy, Loader2, RotateCcw, TriangleAlert } from "lucide-react";
 
 export default function Pdv() {
@@ -35,7 +36,13 @@ export default function Pdv() {
     const t = setInterval(async () => {
       try {
         const inv = await api.getInvoice(invoiceId);
-        setInvoice((prev) => (prev && prev.id === inv.id ? inv : prev));
+        setInvoice((prev) => {
+          if (prev && prev.id === inv.id && inv.status === "paid" && prev.status !== "paid") {
+            // ¡Momento caja registradora!
+            playCashSound();
+          }
+          return prev && prev.id === inv.id ? inv : prev;
+        });
       } catch {
         /* reintenta en el siguiente tick */
       }
@@ -75,7 +82,7 @@ export default function Pdv() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && generate()}
-              className="w-full bg-transparent text-4xl font-bold text-white outline-none placeholder:text-zinc-500"
+              className="w-full bg-transparent text-5xl font-black tracking-tight tabular-nums text-white outline-none placeholder:text-zinc-500"
               autoFocus
             />
           </div>
@@ -95,29 +102,34 @@ export default function Pdv() {
       )}
 
       {invoice && (
-        <div className="rounded-2xl border border-[#1A1A1A] bg-[#111111] p-8 text-center shadow-[0_0_60px_rgba(0,255,170,0.08)]">
+        <div className="relative overflow-hidden rounded-3xl border border-[#1A1A1A] bg-[#111111] p-8 text-center shadow-[0_0_80px_rgba(0,255,170,0.10)]">
+          {/* Halo sutil de fondo */}
+          <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-[#00FFAA]/10 blur-3xl" />
+
           {!invoicePaid ? (
             <>
-              <p className="text-sm uppercase tracking-widest text-zinc-500">Esperando pago</p>
-              <p className="mt-2 text-5xl font-black text-white">{formatUsd(invoice.amount)}</p>
-              <p className="mt-1 text-sm text-zinc-500">
+              <p className="relative text-sm uppercase tracking-[0.3em] text-zinc-500">Esperando pago</p>
+              <p className="relative mt-3 text-7xl font-black leading-none tracking-tight tabular-nums text-white">
+                {formatUsd(invoice.amount)}
+              </p>
+              <p className="relative mt-2 text-sm text-zinc-500">
                 {invoice.token.toUpperCase()} · {invoice.network}
               </p>
 
-              <div className="mx-auto mt-6 w-fit rounded-xl bg-white p-4 animate-pulse-ring">
+              <div className="relative mx-auto mt-8 w-fit rounded-2xl bg-white p-5 shadow-[0_0_60px_rgba(0,255,170,0.15)] animate-pulse-ring">
                 <QRCodeSVG
                   value={invoice.qrPayload || invoice.address}
-                  size={200}
+                  size={240}
                   fgColor="#0A0A0A"
                   bgColor="#FFFFFF"
                   level="M"
-                  className="h-auto w-[200px] max-w-full"
+                  className="h-auto w-[240px] max-w-full"
                 />
               </div>
 
               <button
                 onClick={copyAddress}
-                className="mt-4 inline-flex items-center gap-2 rounded-lg border border-[#1A1A1A] bg-[#0A0A0A] px-3 py-2 font-mono text-sm text-zinc-300 transition hover:border-[#00FFAA]"
+                className="relative mt-6 inline-flex items-center gap-2 rounded-lg border border-[#1A1A1A] bg-[#0A0A0A] px-3 py-2 font-mono text-sm text-zinc-300 transition hover:border-[#00FFAA]"
               >
                 {copied ? (
                   <Check className="h-4 w-4 text-[#00FFAA]" />
@@ -127,35 +139,35 @@ export default function Pdv() {
                 {shortAddress(invoice.address)}
               </button>
 
-              <div className="mt-6 flex items-center justify-center gap-2 text-[#00FFAA]">
+              <div className="relative mt-6 flex items-center justify-center gap-2 text-[#00FFAA]">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm">Detectando el pago…</span>
+                <span className="text-sm">Escanea y paga — confirmación en vivo</span>
               </div>
 
               <button
                 onClick={reset}
-                className="mt-4 inline-flex items-center gap-2 text-sm text-zinc-500 transition hover:text-zinc-300"
+                className="relative mt-4 inline-flex items-center gap-2 text-sm text-zinc-500 transition hover:text-zinc-300"
               >
                 <RotateCcw className="h-3.5 w-3.5" /> Nuevo cobro
               </button>
             </>
           ) : (
-            <div className="py-6">
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#00FFAA]/10 ring-4 ring-[#00FFAA]/30 animate-in zoom-in-0 fade-in-0 duration-500 ease-out">
-                <Check className="h-10 w-10 text-[#00FFAA] animate-in zoom-in-0 duration-500 delay-150" />
+            <div className="relative py-6">
+              <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-[#00FFAA]/10 ring-4 ring-[#00FFAA]/30 animate-in zoom-in-0 fade-in-0 duration-500 ease-out">
+                <Check className="h-12 w-12 text-[#00FFAA] animate-in zoom-in-0 duration-500 delay-150" />
               </div>
-              <p className="mt-6 text-2xl font-black text-[#00FFAA] animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150">
+              <p className="mt-6 text-3xl font-black text-[#00FFAA] animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150">
                 ¡Pago recibido!
               </p>
-              <p className="mt-2 text-4xl font-black text-white animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200">
+              <p className="mt-3 text-6xl font-black leading-none tracking-tight tabular-nums text-white animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200">
                 {formatUsd(invoice.amount)}
               </p>
-              <p className="mt-1 text-sm text-zinc-500 animate-in fade-in duration-500 delay-300">
+              <p className="mt-2 text-sm text-zinc-500 animate-in fade-in duration-500 delay-300">
                 {invoice.txHash ? `Tx: ${shortAddress(invoice.txHash)}` : "Confirmado en Sepolia"}
               </p>
               <button
                 onClick={reset}
-                className="mt-8 w-full rounded-xl bg-[#00FFAA] py-3 font-bold text-black transition hover:bg-[#00CC88] animate-in fade-in slide-in-from-bottom-2 duration-500 delay-400"
+                className="mt-8 w-full rounded-xl bg-[#00FFAA] py-4 text-lg font-bold text-black transition hover:bg-[#00CC88] animate-in fade-in slide-in-from-bottom-2 duration-500 delay-400"
               >
                 Hacer otro cobro
               </button>
