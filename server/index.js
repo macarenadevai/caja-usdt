@@ -15,6 +15,7 @@ import * as wdk from "./wdk.js";
 import * as state from "./state.js";
 import * as payments from "./payments.js";
 import * as agent from "./agent.js";
+import { listContacts, addContact, removeContact } from "./contacts.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, ".env") });
@@ -78,6 +79,25 @@ app.get("/api/status", async (req, res) => {
   } catch (e) {
     fail(res, "STATUS_ERROR", e.message, 500);
   }
+});
+
+// ---- Contactos (alias → dirección) ----
+app.get("/api/contacts", (req, res) => {
+  res.json({ contacts: listContacts() });
+});
+
+app.post("/api/contacts", (req, res) => {
+  try {
+    const c = addContact({ alias: req.body?.alias, address: req.body?.address });
+    res.status(201).json({ contact: c });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.delete("/api/contacts/:id", (req, res) => {
+  removeContact(req.params.id);
+  res.json({ ok: true });
 });
 
 // ---- GET /api/balance?network=&token= ----

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { CSSProperties } from "react";
-import { api, type Transfer, formatUsd, shortAddress, friendlyLabel } from "@/lib/api";
+import { api, type Transfer, type Contact, formatUsd, shortAddress, friendlyLabel } from "@/lib/api";
 import { Check, CircleAlert, Clock, Loader2, RotateCcw, Send, TriangleAlert } from "lucide-react";
 import Recibo from "./recibo";
 
@@ -43,6 +43,28 @@ export default function Enviar() {
   const [sending, setSending] = useState(false);
   const [transfer, setTransfer] = useState<Transfer | null>(null);
   const [history, setHistory] = useState<LedgerEntry[]>([]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [guardando, setGuardando] = useState(false);
+  const [aliasInput, setAliasInput] = useState("");
+  const [guardarError, setGuardarError] = useState("");
+
+  // Contactos guardados (alias → dirección)
+  useEffect(() => {
+    api.contacts
+      .list()
+      .then(setContacts)
+      .catch(() => {});
+  }, []);
+
+  const aliasDe = (addr: string) =>
+    contacts.find((c) => c.address.toLowerCase() === (addr || "").toLowerCase())?.alias;
+  const esDireccion = /^0x[a-fA-F0-9]{40}$/.test(to.trim());
+  const sug = contacts.filter(
+    (c) =>
+      to.trim() &&
+      (c.alias.toLowerCase().includes(to.trim().toLowerCase()) ||
+        c.address.toLowerCase().startsWith(to.trim().toLowerCase()))
+  );
 
   // Historial de remesas (ledger del server, polling cada 8s)
   useEffect(() => {
@@ -69,8 +91,11 @@ export default function Enviar() {
 
   const submit = useCallback(() => {
     const amt = Number(amount);
-    if (!/^0x[a-fA-F0-9]{40}$/.test(to.trim())) {
-      setError("Dirección EVM inválida (0x + 40 caracteres)");
+    // Acepta alias de contacto o dirección 0x
+    const c = contacts.find((x) => x.alias.toLowerCase() === to.trim().toLowerCase());
+    const destino = c?.address || to.trim();
+    if (!/^0x[a-fA-F0-9]{40}$/.test(destino)) {
+      setError("Elige un contacto o escribe una dirección 0x válida");
       return;
     }
     if (!Number.isFinite(amt) || amt <= 0) {
@@ -78,8 +103,27 @@ export default function Enviar() {
       return;
     }
     setError("");
+    setTo(destino);
     setConfirming(true);
-  }, [to, amount]);
+  }, [to, amount, contacts]);
+
+  const guardarContacto = async () => {
+    if (!esDireccion) return;
+    if (!aliasInput.trim()) {
+      setGuardarError("Escribe un alias para guardarlo");
+      return;
+    }
+    setGuardarError("");
+    try {
+      await api.contacts.create(aliasInput.trim(), to.trim());
+      const cs = await api.contacts.list();
+      setContacts(cs);
+      setGuardando(false);
+      setAliasInput("");
+    } catch (e: any) {
+      setGuardarError(e?.message || "No se pudo guardar");
+    }
+  };
 
   const confirmSend = async () => {
     setSending(true);
@@ -134,16 +178,66 @@ export default function Enviar() {
       {!transfer && (
         <div className="rounded-2xl border border-[#2A3050] bg-[#1C2038] p-8">
           <label className="mb-2 block text-sm font-medium text-zinc-400" htmlFor="destino">
-            Dirección destino (EVM)
+            ¿A quién le pagas? (contacto o dirección)
           </label>
           <input
             id="destino"
             type="text"
-            placeholder="0x…"
+            placeholder="Escribe un contacto o pega la dirección…"
             value={to}
-            onChange={(e) => setTo(e.target.value)}
+            onChange={(e) => {
+              setTo(e.target.value);
+              setGuardando(false);
+              setGuardarError("");
+            }}
             className="w-full rounded-xl border border-[#2A3050] bg-[#14172B] px-4 py-3 font-mono text-sm text-white outline-none placeholder:text-zinc-500 focus:border-[#9BE8C8]"
           />
+          {to && sug.length > 0 && (
+            <div className="mt-2 space-y-1 rounded-xl border border-[#2A3050] bg-[#14172B] p-2">
+              {sug.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => {
+                    setTo(c.address);
+                    setAliasInput("");
+                    setGuardando(false);
+                  }}
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm text-zinc-300 transition hover:bg-[#9BE8C8]/10"
+                >
+                  <span className="font-bold text-[#9BE8C8]">{c.alias}</span>
+                  <span className="font-mono text-xs text-zinc-500">{shortAddress(c.address)}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          {esDireccion && !aliasDe(to) && !guardando && (
+            <button
+              onClick={() => setGuardando(true)}
+              className="mt-2 flex items-center gap-1.5 rounded-lg border border-dashed border-[#F2D98C]/40 px-3 py-1.5 text-xs font-bold text-[#F2D98C] transition hover:bg-[#F2D98C]/10"
+            >
+              💾 Guardar esta dirección como contacto
+            </button>
+          )}
+          {guardando && (
+            <div className="mt-2">
+              <div className="flex gap-2">
+                <input
+                  value={aliasInput}
+                  onChange={(e) => setAliasInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && guardarContacto()}
+                  placeholder="Alias (ej. Ferretería López)"
+                  className="w-full rounded-lg border border-[#2A3050] bg-[#14172B] px-3 py-2 text-sm text-white outline-none placeholder:text-zinc-500 focus:border-[#F2D98C]"
+                />
+                <button
+                  onClick={guardarContacto}
+                  className="rounded-lg bg-[#F2D98C] px-3 text-sm font-bold text-black transition hover:bg-[#E8C978]"
+                >
+                  Guardar
+                </button>
+              </div>
+              {guardarError && <p className="mt-1 text-xs text-red-400">{guardarError}</p>}
+            </div>
+          )}
           <label className="mb-2 mt-4 block text-sm font-medium text-zinc-400" htmlFor="monto-enviar">
             Monto (USD₮)
           </label>
@@ -183,7 +277,13 @@ export default function Enviar() {
           <div className="w-full max-w-sm rounded-2xl border border-[#2A3050] bg-[#1C2038] p-8">
             <p className="text-sm uppercase tracking-widest text-zinc-500">Confirmar envío</p>
             <p className="mt-4 text-5xl font-black text-white">{formatUsd(Number(amount))}</p>
-            <p className="mt-2 break-all font-mono text-sm text-zinc-400">{shortAddress(to)}</p>
+            <p className="mt-2 break-all font-mono text-sm text-zinc-400">
+              {aliasDe(to) ? (
+                <span className="font-sans font-bold text-[#9BE8C8]">{aliasDe(to)}</span>
+              ) : (
+                shortAddress(to)
+              )}
+            </p>
             <p className="mt-2 text-xs text-zinc-400">Red: Sepolia · Dólares digitales</p>
             <div className="mt-6 flex gap-3">
               <button
@@ -315,7 +415,7 @@ export default function Enviar() {
                     tipo="Envío"
                     monto={transfer.amount}
                     desde="tu caja"
-                    hacia={friendlyLabel(transfer.to)}
+                    hacia={aliasDe(transfer.to) || friendlyLabel(transfer.to)}
                     estado="Confirmado"
                     txHash={transfer.txHash}
                   />

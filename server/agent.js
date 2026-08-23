@@ -11,6 +11,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import * as state from "./state.js";
+import { getAliasMap, listContacts, resolveAlias } from "./contacts.js";
 import * as wdk from "./wdk.js";
 
 const MCP_BIN = process.env.WDK_MCP_BIN || "/home/macarena/.hermes/node/bin/wdk-mcp";
@@ -24,12 +25,8 @@ Tu trabajo: ayudar al dueño a manejar su caja usando las herramientas disponibl
 
 LENGUAJE AMIGABLE (obligatorio, es lo que hace al producto "web2"):
 - Habla SIEMPRE de "dólares": los montos se muestran como "$10" o "10 dólares". NUNCA uses la palabra "USDT" en el chat (es un tecnicismo que no le importa al dueño).
-- NUNCA muestres direcciones de wallet completas en el chat. Usa estos alias:
-  • "tu caja" → 0x5A6B8B635b6674681682dB4F713faF4001ac6Cb2
-  • "tu cliente de prueba" → 0x66dEc61c81105249fD38480157C37AcFb45A1a8b
-  • "tu cuenta personal" → 0x9dabBF114698bd9bFBF6222b9FD6Cd967ECD3850
-  Si el destino no tiene alias, refiérete como "la dirección que me diste" sin escribirla completa.
-- La propuesta de envío debe verse así: "Enviar $10.00 a tu cliente de prueba (red Sepolia)". Cero tecnicismos.
+- NUNCA muestres direcciones de wallet completas en el chat. Usa los alias/contactos (lista completa abajo en CONTACTOS) o, si el destino no tiene alias, refiérete como "la dirección que me diste" sin escribirla completa.
+- La propuesta de envío debe verse así: "Enviar $10.00 a <alias del contacto> (red Sepolia)". Cero tecnicismos.
 - El hash de la transacción NO lo muestres como dato principal: la plataforma genera un comprobante tipo ticket para el dueño.
 
 REGLAS OBLIGATORIAS:
@@ -37,7 +34,25 @@ REGLAS OBLIGATORIAS:
 2. El dueño aprueba o rechaza la propuesta; si la aprueba, la plataforma la ejecutará.
 3. Responde siempre en español de México, breve y claro.
 4. Si el saldo es insuficiente, dilo honestamente y sugiere fondear la caja.
-5. Para ver cuánto tienes, usa get_balance con network=sepolia y token=usdt (demo en testnet). Recuerda presentar el saldo como dólares.`;
+5. Para ver cuánto tienes, usa get_balance con network=sepolia y token=usdt (demo en testnet). Recuerda presentar el saldo como dólares.
+6. Si el dueño menciona un contacto por su alias (ej. "págale a Ferretería"), usa la dirección de ese contacto del bloque CONTACTOS.`;
+
+/** Prompt dinámico: prompt base + contactos actuales del negocio. */
+function buildSystemPrompt() {
+  const fixed = [
+    { alias: "tu caja", address: "0x5A6B8B635b6674681682dB4F713faF4001ac6Cb2" },
+    { alias: "tu cliente de prueba", address: "0x66dEc61c81105249fD38480157C37AcFb45A1a8b" },
+    { alias: "tu cuenta personal", address: "0x9dabBF114698bd9bFBF6222b9FD6Cd967ECD3850" },
+  ];
+  const extra = listContacts();
+  const lines = [...fixed, ...extra]
+    .map((c) => `  • "${c.alias}" → ${c.address}`)
+    .join("\n");
+  return `${SYSTEM_PROMPT}
+
+CONTACTOS (direcciones con alias; úsalos cuando el dueño pida pagar a alguien):
+${lines}`;
+}
 
 let mcp = null;
 let toolDefs = [];
@@ -134,7 +149,7 @@ async function deepSeek(messages, functions) {
 export async function processMessage(text, history = []) {
   await connectMcp();
   const messages = [
-    { role: "system", content: SYSTEM_PROMPT },
+    { role: "system", content: buildSystemPrompt() },
     ...history.slice(-10),
     { role: "user", content: text },
   ];
@@ -156,6 +171,11 @@ export async function processMessage(text, history = []) {
         }
         // El MCP server de WDK valida amount como STRING (el schema dice number — bug upstream)
         args.amount = String(args.amount ?? "");
+        // Si el LLM pasó un alias/contacto (ej. "ferretería") en vez de dirección, resolverla
+        if (!/^0x[0-9a-fA-F]{40}$/.test(args.to || "")) {
+          const resolved = resolveAlias(args.to);
+          if (resolved) args.to = resolved;
+        }
         const preview = await callMcp("send_token", { ...args, dryRun: true });
         if (preview.isError) {
           messages.push({ role: "assistant", content: null, tool_calls: msg.tool_calls });
@@ -263,18 +283,12 @@ export async function confirmProposal(proposalId) {
   };
 }
 
-const ALIASES = {
-  "0x5a6b8b635b6674681682db4f713faf4001ac6cb2": "tu caja",
-  "0x66dec61c81105249fd38480157c37acfb45a1a8b": "tu cliente",
-  "0x9dabbf114698bd9bfbf6222b9fd6cd967ecd3850": "tu cuenta personal",
-};
-
 /** Capa web2: transforma respuestas del modelo a lenguaje amigable. */
 export function friendlyText(text = "") {
   let t = String(text);
   t = t.replace(/\bUSDT₮\b/gi, "dólares");
   t = t.replace(/\bUSDT\b/gi, "dólares");
-  for (const [addr, alias] of Object.entries(ALIASES)) {
+  for (const [addr, alias] of Object.entries(getAliasMap())) {
     t = t.replace(new RegExp(addr, "gi"), alias);
   }
   // cualquier dirección larga restante → corta

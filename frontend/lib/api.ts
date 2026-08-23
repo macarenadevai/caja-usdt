@@ -80,6 +80,15 @@ export const api = {
     return res.transfer; // el backend devuelve {transfer, estimate} — extraer el transfer
   },
   getTransfer: (id: string) => req<Transfer>(`/api/transfer/${id}`),
+  contacts: {
+    list: () => req<{ contacts: Contact[] }>("/api/contacts").then((r) => r.contacts),
+    create: (alias: string, address: string) =>
+      req<{ contact: Contact }>("/api/contacts", {
+        method: "POST",
+        body: JSON.stringify({ alias, address }),
+      }).then((r) => r.contact),
+    remove: (id: string) => req<{ ok: boolean }>(`/api/contacts/${id}`, { method: "DELETE" }),
+  },
   agentMessage: (text: string) =>
     req<{ reply: string; proposal?: Proposal }>("/api/agent/message", {
       method: "POST",
@@ -105,6 +114,12 @@ export interface Proposal {
   token: string;
   network: string;
   status: string;
+}
+
+export interface Contact {
+  id: string;
+  alias: string;
+  address: string;
 }
 
 export const formatUsd = (n: number) =>
