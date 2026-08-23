@@ -109,7 +109,7 @@ node index.js
 ```bash
 cd frontend
 npm install
-npm run dev   # http://localhost:3000
+npm run dev   # http://localhost:3000 (landing) · http://localhost:3000/app (app)
 ```
 
 ### 4. Fondear la caja (testnet)

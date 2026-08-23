@@ -21,7 +21,7 @@
 
 **Voz**: "En América Latina, si tienes un negocio y quieres operar en dólares... es un problema. Los bancos te piden historial. Las remesas te comen 10%. Y si aceptas cripto... no tienes caja, tienes una wallet complicada."
 
-**Pantalla**: fondo oscuro + logo Caja + tipografía grande: "Tu negocio en USD₮". En el celular: se instala la PWA (añadir a pantalla de inicio) → abre fullscreen. **Frase clave: "Tu celular es tu terminal punto de venta."**
+**Pantalla**: abre la **landing** (`:3000/`) — logo Caja + "Tu celular es tu terminal de cobro" + el mockup del QR → clic "Abrir la app" → entra a la app (`:3000/app`). En el celular: se instala la PWA (añadir a pantalla de inicio) → abre fullscreen. **Frase clave: "Tu celular es tu terminal punto de venta."**
 
 ---
 
@@ -29,7 +29,7 @@
 
 **Voz**: "Caja convierte tu wallet en una caja registradora. Abres la vista Cobrar, pones el monto... y listo: tu cliente paga con lo que sea que tenga — hasta una wallet que nadie instaló para esto."
 
-**Pantalla** (frontend :3000 → tab Cobrar):
+**Pantalla** (frontend `:3000/app` → tab Cobrar):
 1. Monto `12.50` → se genera el **QR** al instante
 2. *Corte*: terminal → el cliente (PAGADOR) ejecuta su pago:
    ```
