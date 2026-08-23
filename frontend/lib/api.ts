@@ -72,8 +72,13 @@ export const api = {
   createInvoice: (amount: number) =>
     req<Invoice>("/api/invoice", { method: "POST", body: JSON.stringify({ amount }) }),
   getInvoice: (id: string) => req<Invoice>(`/api/invoice/${id}`),
-  send: (payload: { to: string; amount: number; confirm: boolean }) =>
-    req<Transfer>("/api/send", { method: "POST", body: JSON.stringify(payload) }),
+  send: async (payload: { to: string; amount: number; confirm: boolean }) => {
+    const res = await req<{ transfer: Transfer; estimate?: unknown }>("/api/send", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    return res.transfer; // el backend devuelve {transfer, estimate} — extraer el transfer
+  },
   getTransfer: (id: string) => req<Transfer>(`/api/transfer/${id}`),
   agentMessage: (text: string) =>
     req<{ reply: string; proposal?: Proposal }>("/api/agent/message", {
