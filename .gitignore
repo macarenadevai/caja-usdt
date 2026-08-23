@@ -16,6 +16,7 @@ node_modules/
 
 # Runtime state (Caja)
 server/data/state.json
+server/data/contactos.json
 
 # =============================
 # Next.js

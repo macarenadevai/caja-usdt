@@ -18,8 +18,12 @@ ID=$(echo "$INV" | python3 -c "import sys,json; print(json.load(sys.stdin)['id']
 echo "   invoice: $ID"
 
 echo "── 2) Pagar desde la wallet pagador (pago real on-chain)"
-# Passphrase de la wallet pagador (testnet demo — variable de entorno, fallback solo local)
-export WDK_PASSPHRASE="${PAGADOR_PASSPHRASE:-pagador-demo-2026}"
+# Passphrase de la wallet pagador — SIEMPRE vía variable de entorno (nunca hardcodeada)
+if [ -z "${PAGADOR_PASSPHRASE:-}" ]; then
+  red "Define PAGADOR_PASSPHRASE antes de correr el ensayo (ej: PAGADOR_PASSPHRASE=... ./ensayo.sh)"
+  exit 1
+fi
+export WDK_PASSPHRASE="$PAGADOR_PASSPHRASE"
 "$WDK_BIN" wallet unlock --name pagador --json >/dev/null 2>&1
 "$WDK_BIN" send --network sepolia --wallet pagador --to "$CAJA" --amount "$MONTO" --token usdt --json \
   | python3 -c "import sys,json; d=json.load(sys.stdin); print('   tx:', d.get('txHash') or d.get('txid') or d)" \
