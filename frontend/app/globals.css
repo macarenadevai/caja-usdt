@@ -163,3 +163,10 @@
   animation: float 6s ease-in-out infinite;
 }
 
+/* Estado oculto del Reveal — se aplica SOLO desde JS (patrón seguro:
+   sin JS el contenido permanece visible) */
+.reveal-hidden {
+  opacity: 0;
+  transform: translateY(24px);
+}
+

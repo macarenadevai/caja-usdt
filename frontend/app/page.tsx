@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { ArrowRight, Banknote, Bot, HandCoins, Send, WifiOff } from "lucide-react";
 
@@ -10,6 +10,11 @@ import { ArrowRight, Banknote, Bot, HandCoins, Send, WifiOff } from "lucide-reac
 /*  problemática. Minimalista y animada (CSS-only + IntersectionObs).  */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Reveal on scroll — patrón seguro: el contenido nace VISIBLE.
+ * El JS solo lo oculta si está fuera de viewport y va a animar.
+ * Si el JS falla o el observer no existe, la página se ve completa.
+ */
 function Reveal({
   children,
   delay = 0,
@@ -20,30 +25,51 @@ function Reveal({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [shown, setShown] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+
+    const rect = el.getBoundingClientRect();
+    const inView = rect.top < window.innerHeight && rect.bottom > 0;
+    if (inView) return; // ya visible → sin animación necesaria
+
+    // Ocultar SOLO para animar (JS activo y elemento fuera de viewport)
+    el.classList.add("reveal-hidden");
+
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setShown(true);
+          el.classList.remove("reveal-hidden");
           io.disconnect();
         }
       },
-      { threshold: 0.15 }
+      { threshold: 0.1 }
     );
     io.observe(el);
-    return () => io.disconnect();
+
+    // Fallback: si el observer no dispara pero el elemento ya está en
+    // viewport (usuario llegó), forzar visible en ≤1s. Nunca fuerza
+    // visible si el usuario aún no ha bajado (preserva la animación).
+    const t = setInterval(() => {
+      const r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) {
+        el.classList.remove("reveal-hidden");
+        io.disconnect();
+        clearInterval(t);
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(t);
+      io.disconnect();
+    };
   }, []);
 
   return (
     <div
       ref={ref}
-      className={`transition-all duration-700 ease-out ${
-        shown ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-      } ${className}`}
+      className={`transition-all duration-700 ease-out ${className}`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
