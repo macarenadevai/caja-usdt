@@ -72,12 +72,12 @@ export default function Pdv() {
   return (
     <div className="mx-auto w-full max-w-md">
       {!invoice && (
-        <div className="rounded-2xl border border-[#1A1A1A] bg-[#111111] p-8 shadow-[0_0_60px_rgba(0,255,170,0.05)]">
+        <div className="rounded-2xl border border-[#2A3050] bg-[#1C2038] p-8 shadow-[0_0_60px_rgba(0,255,170,0.05)]">
           <label className="mb-2 block text-sm font-medium text-zinc-400" htmlFor="monto">
             Monto a cobrar (USD₮)
           </label>
-          <div className="flex items-center gap-2 rounded-xl border border-[#1A1A1A] bg-[#0A0A0A] px-4 py-3 focus-within:border-[#00FFAA]">
-            <span className="text-2xl font-bold text-[#00FFAA]">$</span>
+          <div className="flex items-center gap-2 rounded-xl border border-[#2A3050] bg-[#14172B] px-4 py-3 focus-within:border-[#9BE8C8]">
+            <span className="text-2xl font-bold text-[#9BE8C8]">$</span>
             <input
               id="monto"
               type="number"
@@ -100,7 +100,7 @@ export default function Pdv() {
           <button
             onClick={generate}
             disabled={!amount}
-            className="mt-6 w-full rounded-xl bg-[#00FFAA] py-4 text-lg font-bold text-black transition hover:bg-[#00CC88] disabled:cursor-not-allowed disabled:opacity-40"
+            className="mt-6 w-full rounded-xl bg-[#9BE8C8] py-4 text-lg font-bold text-black transition hover:bg-[#7BCFAF] disabled:cursor-not-allowed disabled:opacity-40"
           >
             Generar QR de cobro
           </button>
@@ -108,9 +108,9 @@ export default function Pdv() {
       )}
 
       {invoice && (
-        <div className="relative overflow-hidden rounded-3xl border border-[#1A1A1A] bg-[#111111] p-8 text-center shadow-[0_0_80px_rgba(0,255,170,0.10)]">
+        <div className="relative overflow-hidden rounded-3xl border border-[#2A3050] bg-[#1C2038] p-8 text-center shadow-[0_0_80px_rgba(0,255,170,0.10)]">
           {/* Halo sutil de fondo */}
-          <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-[#00FFAA]/10 blur-3xl" />
+          <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-[#9BE8C8]/10 blur-3xl" />
 
           {!invoicePaid ? (
             <>
@@ -126,7 +126,7 @@ export default function Pdv() {
                 <QRCodeSVG
                   value={invoice.qrPayload || invoice.address}
                   size={240}
-                  fgColor="#0A0A0A"
+                  fgColor="#14172B"
                   bgColor="#FFFFFF"
                   level="M"
                   className="h-auto w-[240px] max-w-full"
@@ -135,17 +135,17 @@ export default function Pdv() {
 
               <button
                 onClick={copyAddress}
-                className="relative mt-6 inline-flex items-center gap-2 rounded-lg border border-[#1A1A1A] bg-[#0A0A0A] px-3 py-2 font-mono text-sm text-zinc-300 transition hover:border-[#00FFAA]"
+                className="relative mt-6 inline-flex items-center gap-2 rounded-lg border border-[#2A3050] bg-[#14172B] px-3 py-2 font-mono text-sm text-zinc-300 transition hover:border-[#9BE8C8]"
               >
                 {copied ? (
-                  <Check className="h-4 w-4 text-[#00FFAA]" />
+                  <Check className="h-4 w-4 text-[#9BE8C8]" />
                 ) : (
                   <Copy className="h-4 w-4" />
                 )}
                 {shortAddress(invoice.address)}
               </button>
 
-              <div className="relative mt-6 flex items-center justify-center gap-2 text-[#00FFAA]">
+              <div className="relative mt-6 flex items-center justify-center gap-2 text-[#9BE8C8]">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span className="text-sm">Escanea y paga — confirmación en vivo</span>
               </div>
@@ -159,10 +159,10 @@ export default function Pdv() {
             </>
           ) : (
             <div className="relative py-6">
-              <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-[#00FFAA]/10 ring-4 ring-[#00FFAA]/30 animate-in zoom-in-0 fade-in-0 duration-500 ease-out">
-                <Check className="h-12 w-12 text-[#00FFAA] animate-in zoom-in-0 duration-500 delay-150" />
+              <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-[#9BE8C8]/10 ring-4 ring-[#9BE8C8]/30 animate-in zoom-in-0 fade-in-0 duration-500 ease-out">
+                <Check className="h-12 w-12 text-[#9BE8C8] animate-in zoom-in-0 duration-500 delay-150" />
               </div>
-              <p className="mt-6 text-3xl font-black text-[#00FFAA] animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150">
+              <p className="mt-6 text-3xl font-black text-[#9BE8C8] animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150">
                 ¡Pago recibido!
               </p>
               <p className="mt-3 text-6xl font-black leading-none tracking-tight tabular-nums text-white animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200">
@@ -173,7 +173,7 @@ export default function Pdv() {
               </p>
               <button
                 onClick={reset}
-                className="mt-8 w-full rounded-xl bg-[#00FFAA] py-4 text-lg font-bold text-black transition hover:bg-[#00CC88] animate-in fade-in slide-in-from-bottom-2 duration-500 delay-400"
+                className="mt-8 w-full rounded-xl bg-[#9BE8C8] py-4 text-lg font-bold text-black transition hover:bg-[#7BCFAF] animate-in fade-in slide-in-from-bottom-2 duration-500 delay-400"
               >
                 Hacer otro cobro
               </button>

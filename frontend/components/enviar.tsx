@@ -27,7 +27,7 @@ function timeAgo(iso: string) {
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  confirmed: "bg-[#00FFAA]/10 text-[#00FFAA]",
+  confirmed: "bg-[#9BE8C8]/10 text-[#9BE8C8]",
   sent: "bg-amber-400/10 text-amber-400",
   failed: "bg-red-400/10 text-red-400",
 };
@@ -135,7 +135,7 @@ export default function Enviar() {
   return (
     <div className="mx-auto w-full max-w-md">
       {!transfer && (
-        <div className="rounded-2xl border border-[#1A1A1A] bg-[#111111] p-8">
+        <div className="rounded-2xl border border-[#2A3050] bg-[#1C2038] p-8">
           <label className="mb-2 block text-sm font-medium text-zinc-400" htmlFor="destino">
             Dirección destino (EVM)
           </label>
@@ -145,13 +145,13 @@ export default function Enviar() {
             placeholder="0x…"
             value={to}
             onChange={(e) => setTo(e.target.value)}
-            className="w-full rounded-xl border border-[#1A1A1A] bg-[#0A0A0A] px-4 py-3 font-mono text-sm text-white outline-none placeholder:text-zinc-500 focus:border-[#00FFAA]"
+            className="w-full rounded-xl border border-[#2A3050] bg-[#14172B] px-4 py-3 font-mono text-sm text-white outline-none placeholder:text-zinc-500 focus:border-[#9BE8C8]"
           />
           <label className="mb-2 mt-4 block text-sm font-medium text-zinc-400" htmlFor="monto-enviar">
             Monto (USD₮)
           </label>
-          <div className="flex items-center gap-2 rounded-xl border border-[#1A1A1A] bg-[#0A0A0A] px-4 py-3 focus-within:border-[#00FFAA]">
-            <span className="text-2xl font-bold text-[#00FFAA]">$</span>
+          <div className="flex items-center gap-2 rounded-xl border border-[#2A3050] bg-[#14172B] px-4 py-3 focus-within:border-[#9BE8C8]">
+            <span className="text-2xl font-bold text-[#9BE8C8]">$</span>
             <input
               id="monto-enviar"
               type="number"
@@ -173,7 +173,7 @@ export default function Enviar() {
           <button
             onClick={submit}
             disabled={!to || !amount}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#00FFAA] py-4 text-lg font-bold text-black transition hover:bg-[#00CC88] disabled:cursor-not-allowed disabled:opacity-40"
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#9BE8C8] py-4 text-lg font-bold text-black transition hover:bg-[#7BCFAF] disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Send className="h-5 w-5" /> Enviar
           </button>
@@ -183,7 +183,7 @@ export default function Enviar() {
       {/* Modal de confirmación */}
       {confirming && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-sm rounded-2xl border border-[#1A1A1A] bg-[#111111] p-8">
+          <div className="w-full max-w-sm rounded-2xl border border-[#2A3050] bg-[#1C2038] p-8">
             <p className="text-sm uppercase tracking-widest text-zinc-500">Confirmar envío</p>
             <p className="mt-4 text-5xl font-black text-white">{formatUsd(Number(amount))}</p>
             <p className="mt-2 break-all font-mono text-sm text-zinc-400">{shortAddress(to)}</p>
@@ -192,14 +192,14 @@ export default function Enviar() {
               <button
                 onClick={() => setConfirming(false)}
                 disabled={sending}
-                className="flex-1 rounded-xl border border-[#1A1A1A] py-3 font-bold text-zinc-300 transition hover:bg-[#0A0A0A] disabled:opacity-40"
+                className="flex-1 rounded-xl border border-[#2A3050] py-3 font-bold text-zinc-300 transition hover:bg-[#14172B] disabled:opacity-40"
               >
                 Cancelar
               </button>
               <button
                 onClick={confirmSend}
                 disabled={sending}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#00FFAA] py-3 font-bold text-black transition hover:bg-[#00CC88] disabled:opacity-40"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#9BE8C8] py-3 font-bold text-black transition hover:bg-[#7BCFAF] disabled:opacity-40"
               >
                 {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                 {sending ? "Enviando…" : "Confirmar"}
@@ -211,7 +211,7 @@ export default function Enviar() {
 
       {/* Tracking del envío */}
       {transfer && (
-        <div className="rounded-2xl border border-[#1A1A1A] bg-[#111111] p-8 text-center">
+        <div className="rounded-2xl border border-[#2A3050] bg-[#1C2038] p-8 text-center">
           {stepIndex === -1 ? (
             <>
               <CircleAlert className="mx-auto h-10 w-10 text-red-400" />
@@ -236,17 +236,17 @@ export default function Enviar() {
                     <div key={s.key} className="flex flex-1 flex-col items-center gap-2">
                       <div className="flex w-full items-center">
                         {i > 0 && (
-                          <div className="h-0.5 flex-1 overflow-hidden bg-[#1A1A1A]">
-                            <div className={`h-full bg-[#00FFAA] ${done ? "animate-track-fill" : ""}`} />
+                          <div className="h-0.5 flex-1 overflow-hidden bg-[#2A3050]">
+                            <div className={`h-full bg-[#9BE8C8] ${done ? "animate-track-fill" : ""}`} />
                           </div>
                         )}
                         <div
                           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 ${
                             done
-                              ? "border-[#00FFAA] bg-[#00FFAA] text-black"
+                              ? "border-[#9BE8C8] bg-[#9BE8C8] text-black"
                               : active
-                                ? "border-[#00FFAA] text-[#00FFAA]"
-                                : "border-[#1A1A1A] text-zinc-400"
+                                ? "border-[#9BE8C8] text-[#9BE8C8]"
+                                : "border-[#2A3050] text-zinc-400"
                           }`}
                         >
                           {done ? (
@@ -258,10 +258,10 @@ export default function Enviar() {
                           )}
                         </div>
                         {i < STEPS.length - 1 && (
-                          <div className={`h-0.5 flex-1 ${stepIndex > i ? "bg-[#00FFAA]" : "bg-[#1A1A1A]"}`} />
+                          <div className={`h-0.5 flex-1 ${stepIndex > i ? "bg-[#9BE8C8]" : "bg-[#2A3050]"}`} />
                         )}
                       </div>
-                      <span className={`text-xs font-medium ${done ? "text-[#00FFAA]" : "text-zinc-500"}`}>
+                      <span className={`text-xs font-medium ${done ? "text-[#9BE8C8]" : "text-zinc-500"}`}>
                         {s.label}
                       </span>
                     </div>
@@ -270,7 +270,7 @@ export default function Enviar() {
               </div>
 
               {stepIndex === 1 && (
-                <p className="mt-6 flex items-center justify-center gap-2 text-sm text-[#00FFAA]">
+                <p className="mt-6 flex items-center justify-center gap-2 text-sm text-[#9BE8C8]">
                   <Check className="h-4 w-4" /> Confirmado en-chain (Sepolia)
                 </p>
               )}
@@ -296,7 +296,7 @@ export default function Enviar() {
               return (
                 <div
                   key={h.id}
-                  className="flex items-center justify-between rounded-xl border border-[#1A1A1A] bg-[#111111] px-4 py-3"
+                  className="flex items-center justify-between rounded-xl border border-[#2A3050] bg-[#1C2038] px-4 py-3"
                 >
                   <div className="min-w-0">
                     <p className="truncate font-bold text-white tabular-nums">{formatUsd(h.amount)}</p>
