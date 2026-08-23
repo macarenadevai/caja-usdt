@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { api, type Invoice, formatUsd, shortAddress } from "@/lib/api";
 import { playCashSound } from "@/lib/sound";
+import Recibo from "./recibo";
 import { Check, Copy, Loader2, RotateCcw, TriangleAlert } from "lucide-react";
 
 export default function Pdv() {
@@ -168,9 +169,17 @@ export default function Pdv() {
               <p className="mt-3 text-6xl font-black leading-none tracking-tight tabular-nums text-white animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200">
                 {formatUsd(invoice.amount)}
               </p>
-              <p className="mt-2 text-sm text-zinc-500 animate-in fade-in duration-500 delay-300">
-                {invoice.txHash ? `Tx: ${shortAddress(invoice.txHash)}` : "Confirmado en Sepolia"}
-              </p>
+              <div className="mx-auto mt-5 max-w-sm animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300">
+                <Recibo
+                  id={invoice.id}
+                  tipo="Cobro"
+                  monto={invoice.amount}
+                  desde="tu cliente"
+                  hacia="tu caja"
+                  estado="Pagado"
+                  txHash={invoice.txHash}
+                />
+              </div>
               <button
                 onClick={reset}
                 className="mt-8 w-full rounded-xl bg-[#9BE8C8] py-4 text-lg font-bold text-black transition hover:bg-[#7BCFAF] animate-in fade-in slide-in-from-bottom-2 duration-500 delay-400"

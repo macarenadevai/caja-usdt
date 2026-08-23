@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { CSSProperties } from "react";
-import { api, type Transfer, formatUsd, shortAddress } from "@/lib/api";
+import { api, type Transfer, formatUsd, shortAddress, friendlyLabel } from "@/lib/api";
 import { Check, CircleAlert, Clock, Loader2, RotateCcw, Send, TriangleAlert } from "lucide-react";
+import Recibo from "./recibo";
 
 interface LedgerEntry {
   type: "invoice" | "send";
@@ -183,7 +184,7 @@ export default function Enviar() {
             <p className="text-sm uppercase tracking-widest text-zinc-500">Confirmar envío</p>
             <p className="mt-4 text-5xl font-black text-white">{formatUsd(Number(amount))}</p>
             <p className="mt-2 break-all font-mono text-sm text-zinc-400">{shortAddress(to)}</p>
-            <p className="mt-2 text-xs text-zinc-400">Red: Sepolia · Token: USDT</p>
+            <p className="mt-2 text-xs text-zinc-400">Red: Sepolia · Dólares digitales</p>
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setConfirming(false)}
@@ -305,9 +306,20 @@ export default function Enviar() {
               </div>
 
               {stepIndex === 1 && (
-                <p className="mt-6 flex items-center justify-center gap-2 text-sm text-[#9BE8C8]">
-                  <Check className="h-4 w-4" /> Confirmado en-chain (Sepolia)
-                </p>
+                <>
+                  <p className="mt-6 flex items-center justify-center gap-2 text-sm text-[#9BE8C8]">
+                    <Check className="h-4 w-4" /> Confirmado en-chain (Sepolia)
+                  </p>
+                  <Recibo
+                    id={transfer.id}
+                    tipo="Envío"
+                    monto={transfer.amount}
+                    desde="tu caja"
+                    hacia={friendlyLabel(transfer.to)}
+                    estado="Confirmado"
+                    txHash={transfer.txHash}
+                  />
+                </>
               )}
             </>
           )}

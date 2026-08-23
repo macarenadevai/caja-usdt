@@ -18,16 +18,26 @@ const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
 const MODEL = "deepseek-chat";
 const MAX_LOOP = 6;
 
-const SYSTEM_PROMPT = `Eres "Quinto", el agente financiero de un negocio pequeño que opera en USD₮ (Tether).
+const SYSTEM_PROMPT = `Eres "Quinto", el agente financiero de un negocio pequeño que opera con dólares digitales (USD₮ en la red de prueba Sepolia).
 
 Tu trabajo: ayudar al dueño a manejar su caja usando las herramientas disponibles (balance, dirección, envíos, redes).
+
+LENGUAJE AMIGABLE (obligatorio, es lo que hace al producto "web2"):
+- Habla SIEMPRE de "dólares": los montos se muestran como "$10" o "10 dólares". NUNCA uses la palabra "USDT" en el chat (es un tecnicismo que no le importa al dueño).
+- NUNCA muestres direcciones de wallet completas en el chat. Usa estos alias:
+  • "tu caja" → 0x5A6B8B635b6674681682dB4F713faF4001ac6Cb2
+  • "tu cliente de prueba" → 0x66dEc61c81105249fD38480157C37AcFb45A1a8b
+  • "tu cuenta personal" → 0x9dabBF114698bd9bFBF6222b9FD6Cd967ECD3850
+  Si el destino no tiene alias, refiérete como "la dirección que me diste" sin escribirla completa.
+- La propuesta de envío debe verse así: "Enviar $10.00 a tu cliente de prueba (red Sepolia)". Cero tecnicismos.
+- El hash de la transacción NO lo muestres como dato principal: la plataforma genera un comprobante tipo ticket para el dueño.
 
 REGLAS OBLIGATORIAS:
 1. Para ENVIAR dinero (send_token) SIEMPRE usa dryRun=true primero. Nunca llames send_token con dryRun=false por tu cuenta.
 2. El dueño aprueba o rechaza la propuesta; si la aprueba, la plataforma la ejecutará.
-3. Responde siempre en español de México, breve y claro, sin jerga técnica.
+3. Responde siempre en español de México, breve y claro.
 4. Si el saldo es insuficiente, dilo honestamente y sugiere fondear la caja.
-5. Para ver cuánto tienes, usa get_balance con network=sepolia y token=usdt (demo en testnet).`;
+5. Para ver cuánto tienes, usa get_balance con network=sepolia y token=usdt (demo en testnet). Recuerda presentar el saldo como dólares.`;
 
 let mcp = null;
 let toolDefs = [];
@@ -155,7 +165,7 @@ export async function processMessage(text, history = []) {
         // Guardar la propuesta pendiente (state.js guarda campos top-level; el confirm
         // reconstruye los args del send_token desde ellos — no depender de args del LLM)
         const proposal = state.addProposal({
-          text: `Enviar ${args.amount} ${args.token || "nativo"} a ${args.to} en ${args.network}`,
+          text: friendlyText(`Enviar ${args.amount} ${args.token || "nativo"} a ${args.to} en ${args.network}`),
           to: args.to,
           amount: args.amount,
           token: args.token,
@@ -171,11 +181,11 @@ export async function processMessage(text, history = []) {
           previewText && typeof previewText === "object"
             ? (previewText.fee !== undefined ? ` · fee estimado: ${previewText.fee}` : "")
             : "";
-        const reply = `📋 Propuesta de envío:
-${args.amount} ${(args.token || "nativo").toUpperCase()} → ${args.to}
+        const reply = friendlyText(`📋 Propuesta de envío:
+${args.amount} ${args.token || "nativo"} → ${args.to}
 Red: ${args.network}${feeLine}
 
-¿Confirmas el envío? (Solo se ejecuta con tu confirmación)`;
+¿Confirmas el envío? (Solo se ejecuta con tu confirmación)`);
         return { reply, proposal: { id: proposal.id, ...proposal } };
       }
 
@@ -198,7 +208,7 @@ Red: ${args.network}${feeLine}
       continue;
     }
 
-    return { reply: msg.content || "Listo." };
+    return { reply: friendlyText(msg.content) };
   }
 
   return { reply: "Lo siento, no pude procesar eso. Inténtalo de nuevo o reformula la petición." };
@@ -248,9 +258,28 @@ export async function confirmProposal(proposalId) {
 
   return {
     ok: true,
-    message: `✅ Envío ejecutado${txHash ? ` — tx ${txHash}` : ""}.`,
+    message: `✅ Envío ejecutado. Te muestro tu comprobante abajo.`,
     transfer,
   };
+}
+
+const ALIASES = {
+  "0x5a6b8b635b6674681682db4f713faf4001ac6cb2": "tu caja",
+  "0x66dec61c81105249fd38480157c37acfb45a1a8b": "tu cliente",
+  "0x9dabbf114698bd9bfbf6222b9fd6cd967ecd3850": "tu cuenta personal",
+};
+
+/** Capa web2: transforma respuestas del modelo a lenguaje amigable. */
+export function friendlyText(text = "") {
+  let t = String(text);
+  t = t.replace(/\bUSDT₮\b/gi, "dólares");
+  t = t.replace(/\bUSDT\b/gi, "dólares");
+  for (const [addr, alias] of Object.entries(ALIASES)) {
+    t = t.replace(new RegExp(addr, "gi"), alias);
+  }
+  // cualquier dirección larga restante → corta
+  t = t.replace(/0x[0-9a-fA-F]{20,}/g, (m) => `${m.slice(0, 6)}…${m.slice(-4)}`);
+  return t;
 }
 
 export default { connectMcp, processMessage, confirmProposal };

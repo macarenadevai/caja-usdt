@@ -111,3 +111,41 @@ export const formatUsd = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 
 export const shortAddress = (a: string) => (a ? `${a.slice(0, 6)}…${a.slice(-4)}` : "");
+
+/* ── Capa "web2" ── aliases amigables, folios de comprobante, fechas */
+
+export const KNOWN_ALIASES: Record<string, string> = {
+  "0x5a6b8b635b6674681682db4f713faf4001ac6cb2": "tu caja",
+  "0x66dec61c81105249fd38480157c37acfb45a1a8b": "tu cliente de prueba",
+  "0x9dabbf114698bd9bfbf6222b9fd6cd967ecd3850": "tu cuenta personal",
+};
+
+/** Nombre amigable de una dirección: alias conocido o dirección corta. */
+export const friendlyLabel = (addr: string) =>
+  KNOWN_ALIASES[(addr || "").toLowerCase()] || shortAddress(addr);
+
+/** Seguro extra: reemplaza direcciones conocidas por su alias en cualquier texto. */
+export const friendlyText = (text: string) => {
+  let t = text;
+  for (const addr of Object.keys(KNOWN_ALIASES)) {
+    t = t.replace(new RegExp(addr, "gi"), KNOWN_ALIASES[addr]);
+  }
+  return t;
+};
+
+/** Folio corto tipo ticket: QNT-8F3K2A (determinístico desde el id interno). */
+export const folioFromId = (id: string) => {
+  let h = 5381;
+  for (const c of id) h = ((h << 5) + h + c.charCodeAt(0)) >>> 0;
+  return `QNT-${h.toString(36).toUpperCase().padStart(6, "0").slice(0, 6)}`;
+};
+
+/** Fecha en formato México corto: "23 ago 2026, 14:32". */
+export const formatFecha = (d = new Date()) =>
+  d.toLocaleString("es-MX", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });

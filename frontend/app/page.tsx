@@ -169,7 +169,7 @@ function PhoneMockup() {
             </span>
             <span className="text-sm font-black tracking-tight">Quinto</span>
             <span className="ml-auto rounded-md bg-[#9BE8C8]/10 px-2 py-0.5 font-mono text-[10px] font-bold text-[#9BE8C8]">
-              93.75 USDT
+              93.75 dólares
             </span>
           </div>
 

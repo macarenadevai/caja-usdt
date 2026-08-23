@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { api, type Transfer, formatUsd, shortAddress } from "@/lib/api";
+import { api, type Transfer, formatUsd, friendlyLabel, friendlyText } from "@/lib/api";
 import { Check, Send, Sparkles, X } from "lucide-react";
+import Recibo from "./recibo";
 
 interface Msg {
   id: number;
@@ -21,7 +22,7 @@ export default function Agente() {
     {
       id: nextId++,
       role: "agent",
-      text: "Hola 👋 Soy tu agente de Quinto. Pregúntame el saldo o pídeme hacer un envío, por ejemplo: \"envía 5 USDT a 0x…\".",
+      text: "Hola 👋 Soy tu agente de Quinto. Pregúntame el saldo o pídeme un envío, por ejemplo: \"envía 5 dólares a tu cliente\".",
     },
   ]);
   const [input, setInput] = useState("");
@@ -112,7 +113,7 @@ export default function Agente() {
         {msgs.map((m) => (
           <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             <div
-              className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+              className={`min-w-0 max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed [overflow-wrap:anywhere] ${
                 m.role === "user"
                   ? "rounded-br-md bg-[#9BE8C8] font-medium text-black"
                   : m.error
@@ -120,14 +121,16 @@ export default function Agente() {
                     : "rounded-bl-md border border-[#2A3050] bg-[#14172B] text-zinc-200"
               }`}
             >
-              <p className="whitespace-pre-wrap">{m.text}</p>
+              <p className="whitespace-pre-wrap">{friendlyText(m.text)}</p>
 
               {m.proposalId && (
                 <div className="mt-3 rounded-xl border border-[#9BE8C8]/30 bg-[#9BE8C8]/5 p-3">
                   <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#9BE8C8]">
                     <Sparkles className="h-3.5 w-3.5" /> Propuesta de envío
                   </p>
-                  <p className="break-all font-mono text-xs text-zinc-300">{m.proposalText}</p>
+                  <p className="break-all font-mono text-xs text-zinc-300">
+                    {friendlyText(m.proposalText || "")}
+                  </p>
                   <div className="mt-3 flex gap-2">
                     <button
                       onClick={() => confirm(m, true)}
@@ -147,21 +150,27 @@ export default function Agente() {
                 </div>
               )}
 
-              {m.transfer && (
-                <div className="mt-3 rounded-xl border border-[#9BE8C8]/30 bg-[#9BE8C8]/5 p-3">
-                  <p className="text-xs font-bold text-[#9BE8C8]">📦 Envío en tracking</p>
-                  <p className="mt-1 text-xl font-black text-white">{formatUsd(m.transfer.amount)}</p>
-                  <p className="break-all font-mono text-xs text-zinc-400">→ {shortAddress(m.transfer.to)}</p>
-                  <p className="mt-1 text-[11px] text-zinc-500">
-                    Estado:{" "}
-                    {m.transfer.status === "confirmed"
-                      ? "Confirmado ✓"
-                      : m.transfer.status === "failed"
-                        ? "Fallido ✗"
-                        : "Enviado…"}
-                  </p>
-                </div>
-              )}
+              {m.transfer &&
+                (m.transfer.status === "confirmed" ? (
+                  <Recibo
+                    id={m.transfer.id}
+                    tipo="Envío del agente"
+                    monto={m.transfer.amount}
+                    desde="tu caja"
+                    hacia={friendlyLabel(m.transfer.to)}
+                    estado="Confirmado"
+                    txHash={m.transfer.txHash}
+                  />
+                ) : (
+                  <div className="mt-3 rounded-xl border border-[#9BE8C8]/30 bg-[#9BE8C8]/5 p-3">
+                    <p className="text-xs font-bold text-[#9BE8C8]">📦 Envío en curso</p>
+                    <p className="mt-1 text-xl font-black text-white">{formatUsd(m.transfer.amount)}</p>
+                    <p className="text-xs text-zinc-400">→ {friendlyLabel(m.transfer.to)}</p>
+                    <p className="mt-1 text-[11px] text-zinc-500">
+                      {m.transfer.status === "failed" ? "Fallido ✗" : "Enviado…"}
+                    </p>
+                  </div>
+                ))}
             </div>
           </div>
         ))}
