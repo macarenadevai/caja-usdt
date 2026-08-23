@@ -1,13 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import { api, type Transfer, formatUsd, shortAddress } from "@/lib/api";
 import { Check, CircleAlert, Clock, Loader2, RotateCcw, Send, TriangleAlert } from "lucide-react";
-
-const STEPS = [
-  { key: "sent", label: "Enviado" },
-  { key: "confirmed", label: "Confirmado" },
-] as const;
 
 interface LedgerEntry {
   type: "invoice" | "send";
@@ -227,46 +223,85 @@ export default function Enviar() {
                 {transfer.txHash ? `Tx: ${shortAddress(transfer.txHash)}` : "Firmando…"}
               </p>
 
-              {/* Stepper */}
-              <div className="mt-8 flex items-center gap-2">
-                {STEPS.map((s, i) => {
-                  const done = stepIndex >= i;
-                  const active = stepIndex === i && !done;
-                  return (
-                    <div key={s.key} className="flex flex-1 flex-col items-center gap-2">
-                      <div className="flex w-full items-center">
-                        {i > 0 && (
-                          <div className="h-0.5 flex-1 overflow-hidden bg-[#2A3050]">
-                            <div className={`h-full bg-[#9BE8C8] ${done ? "animate-track-fill" : ""}`} />
-                          </div>
-                        )}
-                        <div
-                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 ${
-                            done
-                              ? "border-[#9BE8C8] bg-[#9BE8C8] text-black"
-                              : active
-                                ? "border-[#9BE8C8] text-[#9BE8C8]"
-                                : "border-[#2A3050] text-zinc-400"
-                          }`}
-                        >
-                          {done ? (
-                            <Check className="h-4 w-4" />
-                          ) : active ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <span className="text-xs">{i + 1}</span>
-                          )}
-                        </div>
-                        {i < STEPS.length - 1 && (
-                          <div className={`h-0.5 flex-1 ${stepIndex > i ? "bg-[#9BE8C8]" : "bg-[#2A3050]"}`} />
-                        )}
-                      </div>
-                      <span className={`text-xs font-medium ${done ? "text-[#9BE8C8]" : "text-zinc-500"}`}>
-                        {s.label}
+              {/* Pista del cohete — la tx vuela de la caja al destino */}
+              <div className="mt-8">
+                <div className="relative h-12">
+                  {/* Línea base */}
+                  <div className="absolute top-1/2 h-1 w-full -translate-y-1/2 rounded-full bg-[#2A3050]" />
+                  {/* Línea de progreso */}
+                  <div
+                    className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-gradient-to-r from-[#9BE8C8] to-[#A5C9FF] shadow-[0_0_12px_rgba(155,232,200,0.45)] transition-all duration-1000 ease-out"
+                    style={{ width: stepIndex >= 1 ? "100%" : "15%" }}
+                  />
+                  {/* Cohete */}
+                  <div
+                    className={`absolute top-1/2 z-10 transition-all duration-1000 ease-out ${
+                      stepIndex === 0 ? "rocket-travel" : ""
+                    }`}
+                    style={{ left: stepIndex >= 1 ? "calc(100% - 15px)" : "12%" }}
+                  >
+                    <div
+                      className={`relative -translate-y-1/2 ${
+                        stepIndex === 0 ? "animate-rocket-flight" : ""
+                      }`}
+                    >
+                      {/* Estela de llamas mientras vuela */}
+                      {stepIndex === 0 && (
+                        <div className="rocket-flame absolute -bottom-0.5 left-1/2 h-3 w-1.5 -translate-x-1/2 rounded-full bg-gradient-to-t from-[#F2D98C] via-[#F0A8C9] to-transparent" />
+                      )}
+                      <span className="text-2xl drop-shadow-[0_0_10px_rgba(155,232,200,0.7)]">
+                        🚀
                       </span>
+                      {/* Explosión de estrellas al aterrizar */}
+                      {stepIndex >= 1 && (
+                        <div className="pointer-events-none absolute -inset-3">
+                          {[
+                            { tx: "0px", ty: "-34px" },
+                            { tx: "26px", ty: "-26px" },
+                            { tx: "34px", ty: "0px" },
+                            { tx: "26px", ty: "26px" },
+                            { tx: "-26px", ty: "-26px" },
+                            { tx: "-34px", ty: "0px" },
+                          ].map((d, i) => (
+                            <span
+                              key={i}
+                              className="star-burst absolute left-1/2 top-1/2 text-sm"
+                              style={
+                                {
+                                  "--tx": d.tx,
+                                  "--ty": d.ty,
+                                  animationDelay: `${i * 0.07}s`,
+                                  marginLeft: "-7px",
+                                  marginTop: "-7px",
+                                } as CSSProperties
+                              }
+                            >
+                              {["✦", "✧", "★", "✧", "✦", "★"][i]}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  );
-                })}
+                  </div>
+                </div>
+
+                {/* Etiquetas de estado */}
+                <div className="mt-3 flex justify-between px-1">
+                  <span
+                    className={`text-xs font-bold uppercase tracking-widest ${
+                      stepIndex >= 0 ? "text-[#9BE8C8]" : "text-zinc-500"
+                    }`}
+                  >
+                    Enviado
+                  </span>
+                  <span
+                    className={`text-xs font-bold uppercase tracking-widest ${
+                      stepIndex >= 1 ? "text-[#9BE8C8]" : "text-zinc-500"
+                    }`}
+                  >
+                    Confirmado
+                  </span>
+                </div>
               </div>
 
               {stepIndex === 1 && (
