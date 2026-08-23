@@ -5,15 +5,15 @@ import { QRCodeSVG } from "qrcode.react";
 import { ArrowRight, Banknote, Bot, HandCoins, Send, WifiOff } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
-/*  Quinto — landing (ruta "/")                                          */
-/*  4 piezas de info: qué es · para qué sirve · cómo funciona ·        */
-/*  problemática. Minimalista y animada (CSS-only + IntersectionObs).  */
+/*  Quinto — landing page (route "/")                                  */
+/*  4 pieces of info: what it is · what it's for · how it works ·      */
+/*  the problem. Minimalist and animated (CSS-only + IntersectionObs). */
 /* ------------------------------------------------------------------ */
 
 /**
- * Reveal on scroll — patrón seguro: el contenido nace VISIBLE.
- * El JS solo lo oculta si está fuera de viewport y va a animar.
- * Si el JS falla o el observer no existe, la página se ve completa.
+ * Reveal on scroll — safe pattern: content starts VISIBLE.
+ * JS only hides it when it's outside the viewport and about to animate.
+ * If JS fails or the observer is missing, the page is fully readable.
  */
 function Reveal({
   children,
@@ -32,9 +32,9 @@ function Reveal({
 
     const rect = el.getBoundingClientRect();
     const inView = rect.top < window.innerHeight && rect.bottom > 0;
-    if (inView) return; // ya visible → sin animación necesaria
+    if (inView) return; // already visible → no animation needed
 
-    // Ocultar SOLO para animar (JS activo y elemento fuera de viewport)
+    // Hide ONLY to animate (JS active and element outside viewport)
     el.classList.add("reveal-hidden");
 
     const io = new IntersectionObserver(
@@ -48,8 +48,8 @@ function Reveal({
     );
     io.observe(el);
 
-    // Fallback 1: si el observer no dispara pero el elemento ya está en
-    // viewport (usuario llegó), forzar visible en ≤1s.
+    // Fallback 1: if the observer never fires but the element is already in
+    // the viewport (user scrolled to it), force it visible within ≤1s.
     const t = setInterval(() => {
       const r = el.getBoundingClientRect();
       if (r.top < window.innerHeight && r.bottom > 0) {
@@ -59,9 +59,9 @@ function Reveal({
       }
     }, 1000);
 
-    // Fallback 2 (garantía total): pase lo que pase (webview, observer roto,
-    // scroll en contenedor interno), el contenido SIEMPRE se revela a los 3.5s.
-    // La animación es un refuerzo estético, nunca un bloqueo de contenido.
+    // Fallback 2 (total guarantee): whatever happens (webview, broken observer,
+    // scroll in an inner container), content ALWAYS reveals at 3.5s.
+    // Animation is a cosmetic enhancement, never a content blocker.
     const max = setTimeout(() => {
       el.classList.remove("reveal-hidden");
       io.disconnect();
@@ -89,58 +89,58 @@ function Reveal({
 const PROBLEMAS = [
   {
     icon: Banknote,
-    titulo: "Cobrar en dólares",
-    detalle: "Sin banco en EE.UU., las pasarelas te cobran 5-8% o te rechazan.",
+    titulo: "Collect in dollars",
+    detalle: "Without a US bank account, gateways charge 5-8% or reject you.",
   },
   {
     icon: Send,
-    titulo: "Remesas",
-    detalle: "6-10% de comisión en intermediarios y sin tracking real.",
+    titulo: "Remittances",
+    detalle: "6-10% fees through intermediaries and no real tracking.",
   },
   {
     icon: WifiOff,
-    titulo: "Apps cripto",
-    detalle: "Hechas para gente experimentada, no para negocios que solo quieren cobrar.",
+    titulo: "Crypto apps",
+    detalle: "Built for experienced people, not businesses that just want to get paid.",
   },
 ] as const;
 
 const PASOS = [
   {
     icon: HandCoins,
-    titulo: "Cobra",
-    detalle: "Pon el monto y genera un QR. Tu cliente paga con cualquier wallet y la confirmación llega en vivo.",
+    titulo: "Collect",
+    detalle: "Set the amount and generate a QR. Your customer pays with any wallet and confirmation arrives live.",
   },
   {
     icon: Send,
-    titulo: "Envía",
-    detalle: "Remesas y pagos directos, rastreados onchain: Enviado → Confirmado.",
+    titulo: "Send",
+    detalle: "Remittances and direct payments, tracked onchain: Sent → Confirmed.",
   },
   {
     icon: Bot,
-    titulo: "Delega",
-    detalle: "Tu agente revisa saldos y propone pagos — nada se ejecuta sin tu confirmación.",
+    titulo: "Delegate",
+    detalle: "Your agent checks balances and proposes payments — nothing executes without your confirmation.",
   },
 ] as const;
 
 /**
- * Mockup del teléfono-terminal — CSS puro.
- * Comunica la tesis "tu celular es tu terminal punto de venta":
- * marco de iPhone con isla dinámica, la app de Quinto en pantalla
- * (monto + QR + confirmación) y tabs inferiores, todo animado.
+ * Phone-terminal mockup — pure CSS.
+ * Communicates the thesis "your phone is your point-of-sale terminal":
+ * iPhone frame with dynamic island, the Quinto app on screen
+ * (amount + QR + confirmation) and bottom tabs, all animated.
  */
 function PhoneMockup() {
   return (
     <div className="relative mx-auto w-[310px]">
       {/* Glow */}
       <div className="pointer-events-none absolute -inset-12 rounded-[4.5rem] bg-[#9BE8C8]/15 blur-3xl" />
-      {/* Botones laterales */}
+      {/* Side buttons */}
       <div className="absolute -left-[4px] top-24 h-9 w-[4px] rounded-l-md bg-[#333] " />
       <div className="absolute -left-[4px] top-36 h-9 w-[4px] rounded-l-md bg-[#333] " />
       <div className="absolute -right-[4px] top-32 h-16 w-[4px] rounded-r-md bg-[#333] " />
 
-      {/* Marco — titanio oscuro, esquinas muy redondeadas (iPhone real) */}
+      {/* Frame — dark titanium, very rounded corners (real iPhone) */}
       <div className="relative flex aspect-[9/19.5] animate-float flex-col rounded-[3.4rem] border-[9px] border-[#2E3554] bg-[#14172B] p-2.5 shadow-[0_30px_90px_rgba(0,0,0,0.75)]">
-        {/* Isla dinámica */}
+        {/* Dynamic island */}
         <div className="relative mx-auto mt-1 flex h-8 w-32 shrink-0 items-center justify-center rounded-full bg-black">
           <div className="absolute left-8 flex h-3 w-3 items-center justify-center rounded-full bg-[#111]">
             <div className="h-1.5 w-1.5 rounded-full bg-[#2A4365]" />
@@ -148,7 +148,7 @@ function PhoneMockup() {
           <div className="h-3 w-14 rounded-full bg-[#0B0E1A]" />
         </div>
 
-        {/* Pantalla */}
+        {/* Screen */}
         <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[2.6rem] bg-[#14172B] px-5 pb-4">
           {/* Status bar */}
           <div className="flex shrink-0 items-center justify-between px-1 pt-3 text-[11px] font-bold text-zinc-500">
@@ -162,21 +162,21 @@ function PhoneMockup() {
             </span>
           </div>
 
-          {/* Header de la app */}
+          {/* App header */}
           <div className="mt-3 flex shrink-0 items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#9BE8C8] text-sm font-black text-black">
               ₮
             </span>
             <span className="text-sm font-black tracking-tight">Quinto</span>
             <span className="ml-auto rounded-md bg-[#9BE8C8]/10 px-2 py-0.5 font-mono text-[10px] font-bold text-[#9BE8C8]">
-              93.75 dólares
+              $93.75
             </span>
           </div>
 
-          {/* Monto + QR — bloque central, respira entre header y tabs */}
+          {/* Amount + QR — central block, breathes between header and tabs */}
           <div className="flex min-h-0 flex-1 flex-col items-center justify-center py-2 text-center">
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-500">
-              Monto a cobrar
+              Amount to collect
             </p>
             <p className="mt-2 text-5xl font-black leading-none tracking-tight tabular-nums">
               $12.50
@@ -191,17 +191,17 @@ function PhoneMockup() {
                 className="h-auto w-[110px]"
               />
             </div>
-            <p className="mt-3 text-[11px] font-medium text-[#9BE8C8]">Escanea y paga · confirmación en vivo</p>
+            <p className="mt-3 text-[11px] font-medium text-[#9BE8C8]">Scan & pay · live confirmation</p>
             <div className="mt-2 w-fit rounded-lg border border-[#9BE8C8]/20 bg-[#9BE8C8]/5 px-3 py-1.5 font-mono text-[10px] text-[#9BE8C8]">
-              ✓ Cobro confirmado · 23s
+              ✓ Payment confirmed · 23s
             </div>
           </div>
 
-          {/* Tabs de la app */}
+          {/* App tabs */}
           <div className="flex shrink-0 items-center justify-around rounded-xl bg-[#1C2038] py-2.5 text-[10px] font-bold">
-            <span className="text-[#9BE8C8]">Cobrar</span>
-            <span className="text-zinc-500">Enviar</span>
-            <span className="text-zinc-500">Agente</span>
+            <span className="text-[#9BE8C8]">Collect</span>
+            <span className="text-zinc-500">Send</span>
+            <span className="text-zinc-500">Agent</span>
           </div>
         </div>
       </div>
@@ -225,25 +225,25 @@ export default function Landing() {
             href="/app"
             className="inline-flex items-center gap-2 rounded-xl bg-[#9BE8C8] px-4 py-2 text-sm font-bold text-black transition-all hover:bg-[#7BCFAF] hover:shadow-[0_0_24px_rgba(0,255,170,0.35)]"
           >
-            Abrir la app <ArrowRight className="h-4 w-4" />
+            Open the app <ArrowRight className="h-4 w-4" />
           </a>
         </div>
       </header>
 
-      {/* ===== Hero: qué es + para qué sirve ===== */}
+      {/* ===== Hero: what it is + what it's for ===== */}
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[#9BE8C8]/10 blur-3xl" />
         <div className="relative mx-auto grid max-w-4xl items-center gap-12 px-5 pb-20 pt-16 md:grid-cols-[1.1fr_0.9fr] md:pb-28 md:pt-24">
           <div>
             <Reveal delay={120}>
               <h1 className="mt-6 text-[2.75rem] font-black leading-[1.02] tracking-tight md:text-6xl">
-                El punto de venta para tu negocio, cobrando en <span className="text-[#9BE8C8]">dólares digitales</span>
+                The point of sale for your business, collecting in <span className="text-[#9BE8C8]">digital dollars</span>
               </h1>
             </Reveal>
             <Reveal delay={240}>
               <p className="mt-5 max-w-md text-lg text-zinc-400">
-                Cobra, envía y realiza pagos autónomos en dólares digitales desde tu celular.
-                Sin bancos, comisiones excesivas, y sin datos personales innecesarios.
+                Collect, send and make autonomous payments in digital dollars from your phone.
+                No banks, excessive fees, or unnecessary personal data.
               </p>
             </Reveal>
             <Reveal delay={360}>
@@ -252,31 +252,31 @@ export default function Landing() {
                   href="/app"
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#9BE8C8] px-6 py-3.5 text-lg font-bold text-black transition-all hover:bg-[#7BCFAF] hover:shadow-[0_0_32px_rgba(0,255,170,0.4)]"
                 >
-                  Abrir Quinto <ArrowRight className="h-5 w-5" />
+                  Open Quinto <ArrowRight className="h-5 w-5" />
                 </a>
                 <a
                   href="#como-funciona"
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-6 py-3.5 text-lg font-bold text-zinc-300 transition-colors hover:border-white/25 hover:text-white"
                 >
-                  Cómo funciona
+                  How it works
                 </a>
               </div>
             </Reveal>
           </div>
 
-          {/* Mockup del teléfono-terminal */}
+          {/* Phone-terminal mockup */}
           <Reveal delay={300} className="md:mt-0 mt-8">
             <PhoneMockup />
           </Reveal>
         </div>
       </section>
 
-      {/* ===== Problema ===== */}
+      {/* ===== Problem ===== */}
       <section className="border-t border-white/5 py-16 md:py-20">
         <div className="mx-auto max-w-4xl px-5">
           <Reveal>
             <h2 className="max-w-xl text-2xl font-black leading-tight tracking-tight md:text-3xl">
-              Operar en dólares desde LATAM <span className="text-[#9BE8C8]">es caro o imposible</span>
+              Operating in dollars from LATAM <span className="text-[#9BE8C8]">is expensive or impossible</span>
             </h2>
           </Reveal>
           <div className="mt-8 grid gap-3 md:grid-cols-3">
@@ -295,19 +295,19 @@ export default function Landing() {
           </div>
           <Reveal delay={200}>
             <p className="mt-8 text-center text-lg font-black leading-snug tracking-tight md:text-2xl">
-              Quinto lo resuelve: <span className="text-[#9BE8C8]">tu celular se vuelve la terminal</span> y los
-              <span className="text-[#9BE8C8]"> dólares digitales tu moneda</span>
+              Quinto solves it: <span className="text-[#9BE8C8]">your phone becomes the terminal</span> and
+              <span className="text-[#9BE8C8]"> digital dollars your currency</span>
             </p>
           </Reveal>
         </div>
       </section>
 
-      {/* ===== Cómo funciona ===== */}
+      {/* ===== How it works ===== */}
       <section id="como-funciona" className="border-t border-white/5 py-16 md:py-20">
         <div className="mx-auto max-w-4xl px-5">
           <Reveal>
             <h2 className="text-2xl font-black tracking-tight md:text-3xl">
-              De QR a confirmación <span className="text-[#9BE8C8]">en segundos</span>
+              From QR to confirmation <span className="text-[#9BE8C8]">in seconds</span>
             </h2>
           </Reveal>
           <div className="mt-8 grid gap-3 md:grid-cols-3">
@@ -332,19 +332,19 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ===== CTA final ===== */}
+      {/* ===== Final CTA ===== */}
       <section className="relative overflow-hidden py-20 md:py-24">
         <div className="pointer-events-none absolute bottom-0 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-[#9BE8C8]/10 blur-3xl" />
         <Reveal className="relative mx-auto max-w-2xl px-5 text-center">
           <h2 className="text-3xl font-black leading-tight tracking-tight md:text-5xl">
-            Listo para funcionar en <span className="text-[#9BE8C8]">10 segundos</span>
+            Ready to go in <span className="text-[#9BE8C8]">10 seconds</span>
           </h2>
-          <p className="mt-4 text-zinc-400">Sin registro · Sin tarjeta</p>
+          <p className="mt-4 text-zinc-400">No sign-up · No card</p>
           <a
             href="/app"
             className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-[#9BE8C8] px-8 py-4 text-xl font-black text-black transition-all hover:bg-[#7BCFAF] hover:shadow-[0_0_40px_rgba(0,255,170,0.45)]"
           >
-            Abrir la app <ArrowRight className="h-6 w-6" />
+            Open the app <ArrowRight className="h-6 w-6" />
           </a>
         </Reveal>
       </section>
@@ -352,7 +352,7 @@ export default function Landing() {
       {/* ===== Footer ===== */}
       <footer className="border-t border-white/5 py-6">
         <div className="mx-auto max-w-4xl px-5 text-center text-xs text-zinc-500">
-          Desarrollado por{" "}
+          Built by{" "}
           <a
             href="https://www.zerotwolabs.xyz/"
             target="_blank"

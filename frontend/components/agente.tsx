@@ -22,7 +22,7 @@ export default function Agente() {
     {
       id: nextId++,
       role: "agent",
-      text: "Hola 👋 Soy tu agente de Quinto. Pregúntame el saldo o pídeme un envío, por ejemplo: \"envía 5 dólares a tu cliente\".",
+      text: "Hi 👋 I'm your Quinto agent. Ask me for your balance or request a transfer, e.g.: \"send 5 dollars to your customer\".",
     },
   ]);
   const [input, setInput] = useState("");
@@ -62,13 +62,13 @@ export default function Agente() {
     setLoading(true);
     try {
       if (!ok) {
-        // Cancelar también en el server: la propuesta no debe quedar pendiente.
+        // Also cancel on the server: the proposal must not stay pending.
         try {
           await api.agentReject(msg.proposalId);
         } catch {
-          /* el rechazo local es suficiente para la demo */
+          /* local rejection is enough for the demo */
         }
-        setMsgs((m) => [...m, { id: nextId++, role: "agent", text: "❌ Envío cancelado." }]);
+        setMsgs((m) => [...m, { id: nextId++, role: "agent", text: "❌ Transfer cancelled." }]);
       } else {
         const res = await api.agentConfirm(msg.proposalId);
         if (res.ok) {
@@ -88,7 +88,7 @@ export default function Agente() {
     }
   };
 
-  // Polling del envío del agente: sent → confirmed (receipts on-chain)
+  // Poll the agent's transfer: sent → confirmed (on-chain receipts)
   const activeTransferId = [...msgs]
     .reverse()
     .find((m) => m.transfer?.status === "sent")?.transfer?.id;
@@ -126,7 +126,7 @@ export default function Agente() {
               {m.proposalId && (
                 <div className="mt-3 rounded-xl border border-[#9BE8C8]/30 bg-[#9BE8C8]/5 p-3">
                   <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#9BE8C8]">
-                    <Sparkles className="h-3.5 w-3.5" /> Propuesta de envío
+                    <Sparkles className="h-3.5 w-3.5" /> Transfer proposal
                   </p>
                   <p className="break-all font-mono text-xs text-zinc-300">
                     {friendlyText(m.proposalText || "")}
@@ -137,14 +137,14 @@ export default function Agente() {
                       disabled={loading}
                       className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-[#9BE8C8] py-2 text-xs font-bold text-black transition hover:bg-[#7BCFAF] disabled:opacity-40"
                     >
-                      <Check className="h-3.5 w-3.5" /> Confirmar
+                      <Check className="h-3.5 w-3.5" /> Confirm
                     </button>
                     <button
                       onClick={() => confirm(m, false)}
                       disabled={loading}
                       className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-[#2A3050] py-2 text-xs font-bold text-zinc-300 transition hover:bg-[#14172B] disabled:opacity-40"
                     >
-                      <X className="h-3.5 w-3.5" /> Rechazar
+                      <X className="h-3.5 w-3.5" /> Reject
                     </button>
                   </div>
                 </div>
@@ -154,20 +154,20 @@ export default function Agente() {
                 (m.transfer.status === "confirmed" ? (
                   <Recibo
                     id={m.transfer.id}
-                    tipo="Envío del agente"
+                    tipo="Agent transfer"
                     monto={m.transfer.amount}
-                    desde="tu caja"
+                    desde="your cashbox"
                     hacia={friendlyLabel(m.transfer.to)}
-                    estado="Confirmado"
+                    estado="Confirmed"
                     txHash={m.transfer.txHash}
                   />
                 ) : (
                   <div className="mt-3 rounded-xl border border-[#9BE8C8]/30 bg-[#9BE8C8]/5 p-3">
-                    <p className="text-xs font-bold text-[#9BE8C8]">📦 Envío en curso</p>
+                    <p className="text-xs font-bold text-[#9BE8C8]">📦 Transfer in progress</p>
                     <p className="mt-1 text-xl font-black text-white">{formatUsd(m.transfer.amount)}</p>
                     <p className="text-xs text-zinc-400">→ {friendlyLabel(m.transfer.to)}</p>
                     <p className="mt-1 text-[11px] text-zinc-500">
-                      {m.transfer.status === "failed" ? "Fallido ✗" : "Enviado…"}
+                      {m.transfer.status === "failed" ? "Failed ✗" : "Sent…"}
                     </p>
                   </div>
                 ))}
@@ -182,7 +182,7 @@ export default function Agente() {
                 <span className="typing-dot h-1.5 w-1.5 rounded-full bg-[#9BE8C8]" />
                 <span className="typing-dot h-1.5 w-1.5 rounded-full bg-[#9BE8C8]" />
               </div>
-              <span className="ml-1">Quinto está pensando…</span>
+              <span className="ml-1">Quinto is thinking…</span>
             </div>
           </div>
         )}
@@ -192,7 +192,7 @@ export default function Agente() {
         <div className="flex items-center gap-2">
           <input
             type="text"
-            placeholder="Pregunta o pide un envío…"
+            placeholder="Ask or request a transfer…"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && send()}

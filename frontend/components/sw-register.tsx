@@ -6,9 +6,9 @@ export default function SwRegister() {
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
 
-    // En desarrollo el SW cachea chunks viejos y rompe el hot-reload / hidratación.
-    // Solo se registra en producción (PWA instalable); en dev se limpia lo que
-    // haya quedado de visitas anteriores.
+    // In dev the SW caches old chunks and breaks hot-reload / hydration.
+    // Only registered in production (installable PWA); in dev it cleans up
+    // anything left from previous visits.
     if (process.env.NODE_ENV !== "production") {
       navigator.serviceWorker.getRegistrations().then((regs) => {
         for (const r of regs) r.unregister();

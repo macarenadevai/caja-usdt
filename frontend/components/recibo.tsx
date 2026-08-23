@@ -3,16 +3,16 @@
 import { formatUsd, formatFecha, folioFromId } from "@/lib/api";
 
 interface ReciboProps {
-  id: string; // id interno (invoice_*/trx_*) → folio tipo ticket
-  tipo: "Cobro" | "Envío" | "Envío del agente";
+  id: string; // internal id (invoice_*/trx_*) → ticket-style folio
+  tipo: "Payment" | "Transfer" | "Agent transfer";
   monto: number;
-  desde?: string; // label amigable del emisor
-  hacia: string; // label amigable del destino
-  estado: "Pagado" | "Confirmado" | "Enviado" | "Fallido";
+  desde?: string; // friendly label of the sender
+  hacia: string; // friendly label of the destination
+  estado: "Paid" | "Confirmed" | "Sent" | "Failed";
   txHash?: string | null;
 }
 
-/** Comprobante tipo terminal punto de venta — folio corto, sin tecnicismos. */
+/** Point-of-sale ticket-style receipt — short folio, no jargon. */
 export default function Recibo({
   id,
   tipo,
@@ -22,12 +22,12 @@ export default function Recibo({
   estado,
   txHash,
 }: ReciboProps) {
-  const ok = estado === "Pagado" || estado === "Confirmado";
+  const ok = estado === "Paid" || estado === "Confirmed";
   return (
     <div className="mt-3 overflow-hidden rounded-xl border border-dashed border-[#2A3050] bg-[#14172B]">
       <div className="flex items-center justify-between border-b border-dashed border-[#2A3050] bg-[#1C2038] px-4 py-2">
         <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#9BE8C8]">
-          Quinto · Recibo
+          Quinto · Receipt
         </p>
         <p className="font-mono text-[10px] font-bold text-zinc-400">{folioFromId(id)}</p>
       </div>
@@ -37,17 +37,17 @@ export default function Recibo({
         <div className="space-y-0.5 pt-1 text-[11px] leading-relaxed text-zinc-400">
           {desde && (
             <p>
-              <span className="text-zinc-500">De:</span> {desde}
+              <span className="text-zinc-500">From:</span> {desde}
             </p>
           )}
           <p>
-            <span className="text-zinc-500">Para:</span> {hacia}
+            <span className="text-zinc-500">To:</span> {hacia}
           </p>
           <p>
-            <span className="text-zinc-500">Método:</span> Dólares digitales (USD₮)
+            <span className="text-zinc-500">Method:</span> Digital dollars (USD₮)
           </p>
           <p>
-            <span className="text-zinc-500">Fecha:</span> {formatFecha()}
+            <span className="text-zinc-500">Date:</span> {formatFecha()}
           </p>
         </div>
         <div className="flex items-center justify-between pt-1.5">
@@ -61,7 +61,7 @@ export default function Recibo({
               rel="noreferrer"
               className="flex items-center gap-1 rounded-lg border border-[#2A3050] px-2 py-1 text-[10px] font-bold text-zinc-300 transition hover:border-[#9BE8C8] hover:text-[#9BE8C8]"
             >
-              Ver en Etherscan ↗
+              View on Etherscan ↗
             </a>
           )}
         </div>

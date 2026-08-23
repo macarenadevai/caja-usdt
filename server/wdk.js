@@ -1,12 +1,12 @@
 /**
  * wdk.js — Wrapper del WDK CLI (Tether)
  *
- * Toda operación de wallet pasa por el CLI `wdk` como subprocess
+ * Every wallet operation goes through the `wdk` CLI as a subprocess
  * (TD-1: "WDK CLI as core building block" — prize 1 del hackathon).
  *
- * - WDK_PASSPHRASE se inyecta vía env (nunca en argv visible)
+ * - WDK_PASSPHRASE is injected via env (never in visible argv)
  * - El daemon tiene TTL de unlock (~5 min) → re-unlock idempotente antes de operar
- * - Salida JSON parseada; errores tipados con código del CLI
+ * - JSON output parsed; errors typed with the CLI code
  */
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -19,14 +19,14 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 
 const execFileP = promisify(execFile);
 
-// Ruta del binario: WDK_BIN explícito, si no, el instalado por npm global de Hermes
+// Binary path: explicit WDK_BIN, otherwise Hermes' global npm install
 const WDK_BIN =
   process.env.WDK_BIN || "/home/macarena/.hermes/node/bin/wdk";
 
 export const WALLET = process.env.CAJA_WALLET || "caja";
 export const DEFAULT_NETWORK = process.env.NETWORK || "sepolia";
-// OJO: nombre SIN "TOKEN" — dotenv v17 enmascara variables cuyo nombre
-// contiene TOKEN/KEY/SECRET y reescribe el .env redactado (corrompe runtime).
+// WARNING: name WITHOUT "TOKEN" — dotenv v17 masks variables whose name
+// contains TOKEN/KEY/SECRET and rewrites the redacted .env (corrupts runtime).
 // Ver skill research/engram-patterns-adoption → pitfall dotenv v17.
 export const DEFAULT_TOKEN = process.env.DEFAULT_TKN || "usdt";
 
@@ -73,7 +73,7 @@ export async function execWdk(args, opts = {}) {
       cliMsg = "";
     }
     const detail = cliMsg || stderr.split("\n").filter(Boolean).slice(-3).join(" | ");
-    const err = new Error(detail || `wdk ${args.join(" ")} falló`);
+    const err = new Error(detail || `wdk ${args.join(" ")} failed`);
     err.code = e.code || "WDK_EXEC_ERROR";
     err.cliError = cliMsg;
     err.stderr = stderr;
@@ -85,7 +85,7 @@ export async function execWdk(args, opts = {}) {
   try {
     return JSON.parse(lastLine);
   } catch {
-    const err = new Error(`WDK no devolvió JSON: ${fullArgs.join(" ")}`);
+    const err = new Error(`WDK returned no JSON: ${fullArgs.join(" ")}`);
     err.code = "WDK_PARSE_ERROR";
     err.stdout = stdout;
     err.stderr = stderr;
@@ -94,11 +94,11 @@ export async function execWdk(args, opts = {}) {
 }
 
 // Cache del unlock: el daemon de wdk mantiene la wallet desbloqueada ~5 min.
-// Evita un `wallet unlock` por cada operación (balance + send + detector…).
+// Avoids a `wallet unlock` per operation (balance + send + detector…).
 const UNLOCK_TTL_MS = 60_000;
 const unlockCache = new Map(); // wallet -> timestamp
 
-/** Asegura que la wallet esté desbloqueada en el daemon (idempotente + cacheado). */
+/** Ensures the wallet is unlocked in the daemon (idempotent + cached). */
 export async function ensureUnlocked(wallet = WALLET) {
   const last = unlockCache.get(wallet) || 0;
   if (Date.now() - last < UNLOCK_TTL_MS) return { cached: true };
@@ -107,7 +107,7 @@ export async function ensureUnlocked(wallet = WALLET) {
   return res;
 }
 
-/** Balance de un token en una red. */
+/** Balance of a token on a network. */
 export async function getBalance({ network = DEFAULT_NETWORK, token = DEFAULT_TOKEN, wallet = WALLET } = {}) {
   await ensureUnlocked(wallet);
   const args = ["get", "balance", "--network", network];
@@ -116,25 +116,25 @@ export async function getBalance({ network = DEFAULT_NETWORK, token = DEFAULT_TO
   return res;
 }
 
-/** Dirección derivada de la wallet en una red. */
+/** Address derived from the wallet on a network. */
 export async function getAddress({ network = DEFAULT_NETWORK, wallet = WALLET } = {}) {
   await ensureUnlocked(wallet);
   return execWdk(["get", "address", "--network", network], { wallet });
 }
 
-/** Direcciones de TODAS las redes (para el status). */
+/** Addresses of ALL networks (for status). */
 export async function getAllAddresses({ wallet = WALLET } = {}) {
   await ensureUnlocked(wallet);
   return execWdk(["get", "address", "--all"], { wallet });
 }
 
-/** Información de la wallet (nombre, default, unlocked). */
+/** Wallet info (name, default, unlocked). */
 export async function getWallets() {
   return execWdk(["wallet", "list"]);
 }
 
 /**
- * Estima un envío sin ejecutarlo (--dry-run). Devuelve la estimación o lanza error.
+ * Estimates a transfer without executing it (--dry-run). Returns the estimate or throws.
  */
 export async function estimateSend({ to, amount, token = DEFAULT_TOKEN, network = DEFAULT_NETWORK, wallet = WALLET }) {
   await ensureUnlocked(wallet);
@@ -145,7 +145,7 @@ export async function estimateSend({ to, amount, token = DEFAULT_TOKEN, network 
 }
 
 /**
- * Ejecuta un envío real. Devuelve la respuesta del CLI (tx hash, etc.).
+ * Executes a real transfer. Returns the CLI response (tx hash, etc.).
  */
 export async function sendTokens({ to, amount, token = DEFAULT_TOKEN, network = DEFAULT_NETWORK, wallet = WALLET }) {
   await ensureUnlocked(wallet);
@@ -154,12 +154,12 @@ export async function sendTokens({ to, amount, token = DEFAULT_TOKEN, network = 
   return execWdk(args, { wallet });
 }
 
-/** Lista de redes disponibles (name, network, type, testnet). */
+/** List of available networks (name, network, type, testnet). */
 export async function listNetworks() {
   return execWdk(["network", "list"]);
 }
 
-/** Lista de tokens registrados por red. */
+/** List of registered tokens per network. */
 export async function listTokens(network = DEFAULT_NETWORK) {
   return execWdk(["token", "list", "--network", network]);
 }

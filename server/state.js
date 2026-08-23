@@ -1,8 +1,8 @@
 /**
- * state.js — Persistencia del estado de Quinto (TD-2: JSON, cero deps)
+ * state.js — Quinto state persistence (TD-2: JSON, zero deps)
  *
- * state.json guarda invoices, transfers, proposals y ledger.
- * Escritura atómica: temp file + rename (evita corrupción si el proceso muere).
+ * state.json stores invoices, transfers, proposals and the ledger.
+ * Atomic writes: temp file + rename (avoids corruption if the process dies).
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -111,7 +111,7 @@ export function setMeta(key, value) {
   saveState();
 }
 
-// ---- Transfers (envíos con tracking) ----
+// ---- Transfers (with tracking) ----
 export function addTransfer({ to, amount, token, network, txHash }) {
   const state = loadState();
   const transfer = {
@@ -130,7 +130,7 @@ export function addTransfer({ to, amount, token, network, txHash }) {
   addLedger({
     type: "send",
     id: transfer.id,
-    title: `Envío de ${amount} ${token.toUpperCase()}`,
+    title: `Transfer of ${amount} ${token.toUpperCase()}`,
     amount: transfer.amount,
     token,
     status: "sent",

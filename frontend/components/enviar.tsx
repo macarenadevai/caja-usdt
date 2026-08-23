@@ -31,9 +31,9 @@ const STATUS_STYLE: Record<string, string> = {
 };
 
 const STATUS_LABEL: Record<string, string> = {
-  confirmed: "Confirmado",
-  sent: "En camino",
-  failed: "Fallido",
+  confirmed: "Confirmed",
+  sent: "In transit",
+  failed: "Failed",
 };
 
 export default function Enviar() {
@@ -50,7 +50,7 @@ export default function Enviar() {
   const [aliasInput, setAliasInput] = useState("");
   const [guardarError, setGuardarError] = useState("");
 
-  // Contactos guardados (alias → dirección)
+  // Saved contacts (alias → address)
   useEffect(() => {
     api.contacts
       .list()
@@ -68,7 +68,7 @@ export default function Enviar() {
         c.address.toLowerCase().startsWith(to.trim().toLowerCase()))
   );
 
-  // Historial de remesas (ledger del server, polling cada 8s)
+  // Transfer history (server ledger, polled every 8s)
   useEffect(() => {
     let alive = true;
     const refresh = async () => {
@@ -93,15 +93,15 @@ export default function Enviar() {
 
   const submit = useCallback(() => {
     const amt = Number(amount);
-    // Acepta alias de contacto o dirección 0x
+    // Accepts a contact alias or a 0x address
     const c = contacts.find((x) => x.alias.toLowerCase() === to.trim().toLowerCase());
     const destino = c?.address || to.trim();
     if (!/^0x[a-fA-F0-9]{40}$/.test(destino)) {
-      setError("Elige un contacto o escribe una dirección 0x válida");
+      setError("Choose a contact or enter a valid 0x address");
       return;
     }
     if (!Number.isFinite(amt) || amt <= 0) {
-      setError("Ingresa un monto válido");
+      setError("Enter a valid amount");
       return;
     }
     setError("");
@@ -112,7 +112,7 @@ export default function Enviar() {
   const guardarContacto = async () => {
     if (!esDireccion) return;
     if (!aliasInput.trim()) {
-      setGuardarError("Escribe un alias para guardarlo");
+      setGuardarError("Type an alias to save it");
       return;
     }
     setGuardarError("");
@@ -123,7 +123,7 @@ export default function Enviar() {
       setGuardando(false);
       setAliasInput("");
     } catch (e: any) {
-      setGuardarError(e?.message || "No se pudo guardar");
+      setGuardarError(e?.message || "Could not save");
     }
   };
 
@@ -136,13 +136,13 @@ export default function Enviar() {
       setSending(false);
       setConfirming(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "No se pudo enviar");
+      setError(e instanceof Error ? e.message : "Could not send");
       setSending(false);
       setConfirming(false);
     }
   };
 
-  // Polling del estado del envío (sent → confirmed vía receipts on-chain)
+  // Poll transfer status (sent → confirmed via on-chain receipts)
   const transferId = transfer?.id;
   const transferDone = transfer?.status === "confirmed" || transfer?.status === "failed";
   useEffect(() => {
@@ -181,19 +181,19 @@ export default function Enviar() {
         <div className="rounded-2xl border border-[#2A3050] bg-[#1C2038] p-8">
           <div className="mb-2 flex items-center justify-between">
             <label className="text-sm font-medium text-zinc-400" htmlFor="destino">
-              ¿A quién le pagas?
+              Who are you paying?
             </label>
             <button
               onClick={() => setVerContactos(true)}
               className="flex items-center gap-1.5 rounded-lg border border-[#2A3050] bg-[#1C2038] px-2.5 py-1.5 text-xs font-bold text-[#9BE8C8] transition hover:border-[#9BE8C8]/50"
             >
-              <BookUser className="h-3.5 w-3.5" /> Contactos ({contacts.length})
+              <BookUser className="h-3.5 w-3.5" /> Contacts ({contacts.length})
             </button>
           </div>
           <input
             id="destino"
             type="text"
-            placeholder="Escribe un contacto o pega la dirección…"
+            placeholder="Type a contact or paste the address…"
             value={to}
             onChange={(e) => {
               setTo(e.target.value);
@@ -225,25 +225,25 @@ export default function Enviar() {
               {!guardando ? (
                 <>
                   <p className="text-xs font-bold text-[#F2D98C]">
-                    💾 ¿Guardar esta dirección como contacto?
+                    💾 Save this address as a contact?
                   </p>
                   <button
                     onClick={() => setGuardando(true)}
                     className="mt-2 w-full rounded-lg border border-[#F2D98C]/50 py-2.5 text-sm font-bold text-[#F2D98C] transition hover:bg-[#F2D98C]/10"
                   >
-                    Guardar como contacto
+                    Save as contact
                   </button>
                 </>
               ) : (
                 <>
                   <p className="text-xs font-bold text-[#F2D98C]">
-                    Ponle un nombre para usarla más rápido:
+                    Give it a name so you can use it faster:
                   </p>
                   <input
                     value={aliasInput}
                     onChange={(e) => setAliasInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && guardarContacto()}
-                    placeholder="Nombre (ej. Ferretería López)"
+                    placeholder="Name (e.g. López Hardware Store)"
                     autoFocus
                     className="mt-2 w-full rounded-lg border border-[#2A3050] bg-[#14172B] px-3 py-2.5 text-sm text-white outline-none placeholder:text-zinc-500 focus:border-[#F2D98C]"
                   />
@@ -253,7 +253,7 @@ export default function Enviar() {
                       onClick={guardarContacto}
                       className="flex-1 rounded-lg bg-[#F2D98C] py-2.5 text-sm font-bold text-black transition hover:bg-[#E8C978]"
                     >
-                      Guardar contacto
+                      Save contact
                     </button>
                     <button
                       onClick={() => {
@@ -262,7 +262,7 @@ export default function Enviar() {
                       }}
                       className="rounded-lg border border-[#2A3050] px-4 py-2.5 text-sm font-bold text-zinc-400"
                     >
-                      Cancelar
+                      Cancel
                     </button>
                   </div>
                 </>
@@ -270,7 +270,7 @@ export default function Enviar() {
             </div>
           )}
           <label className="mb-2 mt-4 block text-sm font-medium text-zinc-400" htmlFor="monto-enviar">
-            Monto (USD₮)
+            Amount
           </label>
           <div className="flex items-center gap-2 rounded-xl border border-[#2A3050] bg-[#14172B] px-4 py-3 focus-within:border-[#9BE8C8]">
             <span className="text-2xl font-bold text-[#9BE8C8]">$</span>
@@ -297,16 +297,16 @@ export default function Enviar() {
             disabled={!to || !amount}
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#9BE8C8] py-4 text-lg font-bold text-black transition hover:bg-[#7BCFAF] disabled:cursor-not-allowed disabled:opacity-40"
           >
-            <Send className="h-5 w-5" /> Enviar
+            <Send className="h-5 w-5" /> Send
           </button>
         </div>
       )}
 
-      {/* Modal de confirmación */}
+      {/* Confirmation modal */}
       {confirming && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
           <div className="w-full max-w-sm rounded-2xl border border-[#2A3050] bg-[#1C2038] p-8">
-            <p className="text-sm uppercase tracking-widest text-zinc-500">Confirmar envío</p>
+            <p className="text-sm uppercase tracking-widest text-zinc-500">Confirm transfer</p>
             <p className="mt-4 text-5xl font-black text-white">{formatUsd(Number(amount))}</p>
             <p className="mt-2 break-all font-mono text-sm text-zinc-400">
               {aliasDe(to) ? (
@@ -315,14 +315,14 @@ export default function Enviar() {
                 shortAddress(to)
               )}
             </p>
-            <p className="mt-2 text-xs text-zinc-400">Red: Sepolia · Dólares digitales</p>
+            <p className="mt-2 text-xs text-zinc-400">Network: Sepolia · Digital dollars</p>
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setConfirming(false)}
                 disabled={sending}
                 className="flex-1 rounded-xl border border-[#2A3050] py-3 font-bold text-zinc-300 transition hover:bg-[#14172B] disabled:opacity-40"
               >
-                Cancelar
+                Cancel
               </button>
               <button
                 onClick={confirmSend}
@@ -330,37 +330,37 @@ export default function Enviar() {
                 className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#9BE8C8] py-3 font-bold text-black transition hover:bg-[#7BCFAF] disabled:opacity-40"
               >
                 {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                {sending ? "Enviando…" : "Confirmar"}
+                {sending ? "Sending…" : "Confirm"}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Tracking del envío */}
+      {/* Transfer tracking */}
       {transfer && (
         <div className="rounded-2xl border border-[#2A3050] bg-[#1C2038] p-8 text-center">
           {stepIndex === -1 ? (
             <>
               <CircleAlert className="mx-auto h-10 w-10 text-red-400" />
-              <p className="mt-4 text-xl font-bold text-red-400">Envío fallido</p>
-              <p className="mt-2 text-sm text-zinc-400">{transfer.error || "Error desconocido"}</p>
+              <p className="mt-4 text-xl font-bold text-red-400">Transfer failed</p>
+              <p className="mt-2 text-sm text-zinc-400">{transfer.error || "Unknown error"}</p>
             </>
           ) : (
             <>
-              <p className="text-sm uppercase tracking-widest text-zinc-500">Envío en camino</p>
+              <p className="text-sm uppercase tracking-widest text-zinc-500">Transfer in transit</p>
               <p className="mt-2 text-4xl font-black text-white">{formatUsd(transfer.amount)}</p>
               <p className="mt-1 break-all font-mono text-sm text-zinc-400">→ {shortAddress(transfer.to)}</p>
               <p className="mt-1 text-xs text-zinc-400">
-                {transfer.txHash ? `Tx: ${shortAddress(transfer.txHash)}` : "Firmando…"}
+                {transfer.txHash ? `Tx: ${shortAddress(transfer.txHash)}` : "Signing…"}
               </p>
 
-              {/* Pista del cohete — la tx vuela de la caja al destino */}
+              {/* Rocket trail — the tx flies from the cashbox to the destination */}
               <div className="mt-8">
                 <div className="relative h-12">
-                  {/* Línea base */}
+                  {/* Base line */}
                   <div className="absolute top-1/2 h-1 w-full -translate-y-1/2 rounded-full bg-[#2A3050]" />
-                  {/* Línea de progreso */}
+                  {/* Progress line */}
                   <div
                     className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-gradient-to-r from-[#9BE8C8] to-[#A5C9FF] shadow-[0_0_12px_rgba(155,232,200,0.45)] transition-all duration-1000 ease-out"
                     style={{ width: stepIndex >= 1 ? "100%" : "15%" }}
@@ -384,7 +384,7 @@ export default function Enviar() {
                       <span className="text-2xl drop-shadow-[0_0_10px_rgba(155,232,200,0.7)]">
                         🚀
                       </span>
-                      {/* Explosión de estrellas al aterrizar */}
+                      {/* Star explosion on landing */}
                       {stepIndex >= 1 && (
                         <div className="pointer-events-none absolute -inset-3">
                           {[
@@ -424,14 +424,14 @@ export default function Enviar() {
                       stepIndex >= 0 ? "text-[#9BE8C8]" : "text-zinc-500"
                     }`}
                   >
-                    Enviado
+                    Sent
                   </span>
                   <span
-                    className={`text-xs font-bold uppercase tracking-widest ${
-                      stepIndex >= 1 ? "text-[#9BE8C8]" : "text-zinc-500"
+                    className={`flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-all duration-700 ${
+                      stepIndex >= 1 ? "bg-[#9BE8C8]/15 text-[#9BE8C8]" : "bg-[#1C2038] text-zinc-500"
                     }`}
                   >
-                    Confirmado
+                    Confirmed
                   </span>
                 </div>
               </div>
@@ -439,15 +439,15 @@ export default function Enviar() {
               {stepIndex === 1 && (
                 <>
                   <p className="mt-6 flex items-center justify-center gap-2 text-sm text-[#9BE8C8]">
-                    <Check className="h-4 w-4" /> Confirmado en-chain (Sepolia)
+                    <Check className="h-4 w-4" /> Confirmed onchain (Sepolia)
                   </p>
                   <Recibo
                     id={transfer.id}
-                    tipo="Envío"
+                    tipo="Transfer"
                     monto={transfer.amount}
-                    desde="tu caja"
+                    desde="your cashbox"
                     hacia={aliasDe(transfer.to) || friendlyLabel(transfer.to)}
-                    estado="Confirmado"
+                    estado="Confirmed"
                     txHash={transfer.txHash}
                   />
                 </>
@@ -458,15 +458,15 @@ export default function Enviar() {
             onClick={reset}
             className="mt-6 inline-flex items-center gap-2 text-sm text-zinc-500 transition hover:text-zinc-300"
           >
-            <RotateCcw className="h-3.5 w-3.5" /> Nuevo envío
+            <RotateCcw className="h-3.5 w-3.5" /> New transfer
           </button>
         </div>
       )}
-      {/* Historial de remesas */}
+      {/* Transfer history */}
       {!transfer && history.length > 0 && (
         <div className="mt-6">
           <p className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-500">
-            <Clock className="h-4 w-4" /> Historial de envíos
+            <Clock className="h-4 w-4" /> Transfer history
           </p>
           <div className="space-y-2">
             {history.map((h) => {

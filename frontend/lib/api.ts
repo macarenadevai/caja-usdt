@@ -1,7 +1,7 @@
-// lib/api.ts — Cliente del backend Quinto.
-// Los paths ya incluyen /api/* → API_URL vacío por defecto (misma origin).
-// Next proxya /api/* → localhost:8788 (ver next.config.ts): funciona desde
-// cualquier origin (localhost, LAN, Tailscale) sin CORS.
+// lib/api.ts — Quinto backend client.
+// Paths already include /api/* → API_URL empty by default (same origin).
+// Next proxies /api/* → localhost:8788 (see next.config.ts): works from any
+// origin (localhost, LAN, Tailscale) without CORS.
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export interface Invoice {
@@ -40,7 +40,7 @@ export interface StatusResponse {
 }
 
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
-  // Timeout de 12s: si el backend no responde, la UI no se queda colgada.
+  // 12s timeout: if the backend doesn't respond, the UI doesn't hang.
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 12_000);
   try {
@@ -56,7 +56,7 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
     return data as T;
   } catch (e) {
     if (e instanceof DOMException && e.name === "AbortError") {
-      throw new Error("El servidor no respondió (timeout)");
+      throw new Error("Server did not respond (timeout)");
     }
     throw e;
   } finally {
@@ -77,7 +77,7 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload),
     });
-    return res.transfer; // el backend devuelve {transfer, estimate} — extraer el transfer
+    return res.transfer; // backend returns {transfer, estimate} — extract the transfer
   },
   getTransfer: (id: string) => req<Transfer>(`/api/transfer/${id}`),
   contacts: {
@@ -127,19 +127,19 @@ export const formatUsd = (n: number) =>
 
 export const shortAddress = (a: string) => (a ? `${a.slice(0, 6)}…${a.slice(-4)}` : "");
 
-/* ── Capa "web2" ── aliases amigables, folios de comprobante, fechas */
+/* ── "Web2" layer ── friendly aliases, receipt folios, dates */
 
 export const KNOWN_ALIASES: Record<string, string> = {
-  "0x5a6b8b635b6674681682db4f713faf4001ac6cb2": "tu caja",
-  "0x66dec61c81105249fd38480157c37acfb45a1a8b": "tu cliente de prueba",
-  "0x9dabbf114698bd9bfbf6222b9fd6cd967ecd3850": "tu cuenta personal",
+  "0x5a6b8b635b6674681682db4f713faf4001ac6cb2": "your cashbox",
+  "0x66dec61c81105249fd38480157c37acfb45a1a8b": "your test customer",
+  "0x9dabbf114698bd9bfbf6222b9fd6cd967ecd3850": "your personal account",
 };
 
-/** Nombre amigable de una dirección: alias conocido o dirección corta. */
+/** Friendly label for an address: known alias or short address. */
 export const friendlyLabel = (addr: string) =>
   KNOWN_ALIASES[(addr || "").toLowerCase()] || shortAddress(addr);
 
-/** Seguro extra: reemplaza direcciones conocidas por su alias en cualquier texto. */
+/** Extra safety: replaces known addresses with their alias in any text. */
 export const friendlyText = (text: string) => {
   let t = text;
   for (const addr of Object.keys(KNOWN_ALIASES)) {
@@ -148,16 +148,16 @@ export const friendlyText = (text: string) => {
   return t;
 };
 
-/** Folio corto tipo ticket: QNT-8F3K2A (determinístico desde el id interno). */
+/** Short ticket-style folio: QNT-8F3K2A (deterministic from the internal id). */
 export const folioFromId = (id: string) => {
   let h = 5381;
   for (const c of id) h = ((h << 5) + h + c.charCodeAt(0)) >>> 0;
   return `QNT-${h.toString(36).toUpperCase().padStart(6, "0").slice(0, 6)}`;
 };
 
-/** Fecha en formato México corto: "23 ago 2026, 14:32". */
+/** Short date, e.g. "Aug 23, 2026, 2:32 PM". */
 export const formatFecha = (d = new Date()) =>
-  d.toLocaleString("es-MX", {
+  d.toLocaleString("en-US", {
     day: "2-digit",
     month: "short",
     year: "numeric",

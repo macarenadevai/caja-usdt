@@ -1,5 +1,5 @@
-// contacts.js — Contactos (alias → dirección) para envíos frecuentes.
-// Persistencia: server/data/contactos.json
+// contacts.js — Contacts (alias → address) for frequent transfers.
+// Persistence: server/data/contactos.json
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,9 +10,9 @@ const FILE = path.join(DATA_DIR, "contactos.json");
 
 // Alias fijos del demo (siempre disponibles)
 export const FIXED_ALIASES = {
-  "0x5a6b8b635b6674681682db4f713faf4001ac6cb2": "tu caja",
-  "0x66dec61c81105249fd38480157c37acfb45a1a8b": "tu cliente",
-  "0x9dabbf114698bd9bfbf6222b9fd6cd967ecd3850": "tu cuenta personal",
+  "0x5a6b8b635b6674681682db4f713faf4001ac6cb2": "your cashbox",
+  "0x66dec61c81105249fd38480157c37acfb45a1a8b": "your customer",
+  "0x9dabbf114698bd9bfbf6222b9fd6cd967ecd3850": "your personal account",
 };
 
 const ADDR_RE = /^0x[0-9a-fA-F]{40}$/;
@@ -37,11 +37,11 @@ export function listContacts() {
 export function addContact({ alias, address }) {
   const a = (alias || "").trim();
   const ad = (address || "").trim().toLowerCase();
-  if (!a) throw new Error("El alias es obligatorio");
-  if (!ADDR_RE.test(ad)) throw new Error("Dirección inválida (0x… de 40 hex)");
+  if (!a) throw new Error("Alias is required");
+  if (!ADDR_RE.test(ad)) throw new Error("Invalid address (0x… 40 hex)");
   const list = load();
   if (list.some((c) => c.alias.toLowerCase() === a.toLowerCase()))
-    throw new Error(`Ya existe un contacto con alias "${a}"`);
+    throw new Error(`A contact with alias "${a}" already exists`);
   const c = { id: `ctc_${Date.now().toString(36)}`, alias: a, address: ad };
   list.push(c);
   save(list);
@@ -54,13 +54,13 @@ export function removeContact(id) {
   return true;
 }
 
-/** Resuelve alias → dirección (case-insensitive) o null. */
+/** Resolves alias → address (case-insensitive) or null. */
 export function resolveAlias(alias) {
   const a = (alias || "").trim().toLowerCase();
   return load().find((c) => c.alias.toLowerCase() === a)?.address || null;
 }
 
-/** Mapa dirección → alias (fijos + contactos) para friendlyText. */
+/** Map address → alias (fixed + contacts) for friendlyText. */
 export function getAliasMap() {
   const m = { ...FIXED_ALIASES };
   for (const c of load()) m[c.address.toLowerCase()] = c.alias;

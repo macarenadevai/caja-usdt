@@ -1,12 +1,12 @@
 /**
- * agent.js — Agente de Quinto (Fase 5)
+ * agent.js — Quinto agent (Phase 5)
  *
- * Conecta un MCP client al wdk-mcp server (Tether) y un LLM (DeepSeek)
- * con function calling. El agente:
- *   - Lee balance/address/redes vía tools MCP
- *   - Para ENVIAR: SIEMPRE pasa por propuesta (send_token dryRun=true),
- *     el usuario confirma, y solo entonces ejecuta (dryRun=false).
- * TD-5: confirmación humana obligatoria antes de cualquier send.
+ * Connects an MCP client to the wdk-mcp server (Tether) and an LLM (DeepSeek)
+ * with function calling. The agent:
+ *   - Reads balance/address/networks via MCP tools
+ *   - To SEND: ALWAYS goes through a proposal (send_token dryRun=true),
+ *     the user confirms, and only then it executes (dryRun=false).
+ * TD-5: mandatory human confirmation before any send.
  */
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
@@ -19,30 +19,30 @@ const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
 const MODEL = "deepseek-chat";
 const MAX_LOOP = 6;
 
-const SYSTEM_PROMPT = `Eres "Quinto", el agente financiero de un negocio pequeño que opera con dólares digitales (USD₮ en la red de prueba Sepolia).
+const SYSTEM_PROMPT = `You are "Quinto", the financial agent of a small business that operates with digital dollars (USD₮ on the Sepolia test network).
 
-Tu trabajo: ayudar al dueño a manejar su caja usando las herramientas disponibles (balance, dirección, envíos, redes).
+Your job: help the owner manage their cashbox using the available tools (balance, address, transfers, networks).
 
-LENGUAJE AMIGABLE (obligatorio, es lo que hace al producto "web2"):
-- Habla SIEMPRE de "dólares": los montos se muestran como "$10" o "10 dólares". NUNCA uses la palabra "USDT" en el chat (es un tecnicismo que no le importa al dueño).
-- NUNCA muestres direcciones de wallet completas en el chat. Usa los alias/contactos (lista completa abajo en CONTACTOS) o, si el destino no tiene alias, refiérete como "la dirección que me diste" sin escribirla completa.
-- La propuesta de envío debe verse así: "Enviar $10.00 a <alias del contacto> (red Sepolia)". Cero tecnicismos.
-- El hash de la transacción NO lo muestres como dato principal: la plataforma genera un comprobante tipo ticket para el dueño.
+FRIENDLY LANGUAGE (mandatory, this is what makes the product feel "web2"):
+- ALWAYS talk about "dollars": amounts are shown as "$10" or "10 dollars". NEVER use the word "USDT" in the chat (it's jargon the owner doesn't care about).
+- NEVER show full wallet addresses in the chat. Use the aliases/contacts (full list below in CONTACTS) or, if the destination has no alias, refer to it as "the address you gave me" without writing it in full.
+- The transfer proposal should look like: "Send $10.00 to <contact alias> (Sepolia network)". Zero jargon.
+- Do NOT show the transaction hash as the main data: the platform generates a ticket-style receipt for the owner.
 
-REGLAS OBLIGATORIAS:
-1. Para ENVIAR dinero (send_token) SIEMPRE usa dryRun=true primero. Nunca llames send_token con dryRun=false por tu cuenta.
-2. El dueño aprueba o rechaza la propuesta; si la aprueba, la plataforma la ejecutará.
-3. Responde siempre en español de México, breve y claro.
-4. Si el saldo es insuficiente, dilo honestamente y sugiere fondear la caja.
-5. Para ver cuánto tienes, usa get_balance con network=sepolia y token=usdt (demo en testnet). Recuerda presentar el saldo como dólares.
-6. Si el dueño menciona un contacto por su alias (ej. "págale a Ferretería"), usa la dirección de ese contacto del bloque CONTACTOS.`;
+MANDATORY RULES:
+1. To SEND money (send_token) ALWAYS use dryRun=true first. Never call send_token with dryRun=false on your own.
+2. The owner approves or rejects the proposal; if they approve it, the platform will execute it.
+3. Always respond in English, brief and clear.
+4. If the balance is insufficient, say so honestly and suggest funding the cashbox.
+5. To check how much you have, use get_balance with network=sepolia and token=usdt (testnet demo). Always present the balance as dollars.
+6. If the owner mentions a contact by its alias (e.g. "pay López Hardware Store"), use that contact's address from the CONTACTS block.`;
 
-/** Prompt dinámico: prompt base + contactos actuales del negocio. */
+/** Dynamic prompt: base prompt + the business's current contacts. */
 function buildSystemPrompt() {
   const fixed = [
-    { alias: "tu caja", address: "0x5A6B8B635b6674681682dB4F713faF4001ac6Cb2" },
-    { alias: "tu cliente de prueba", address: "0x66dEc61c81105249fD38480157C37AcFb45A1a8b" },
-    { alias: "tu cuenta personal", address: "0x9dabBF114698bd9bFBF6222b9FD6Cd967ECD3850" },
+    { alias: "your cashbox", address: "0x5A6B8B635b6674681682dB4F713faF4001ac6Cb2" },
+    { alias: "your test customer", address: "0x66dEc61c81105249fD38480157C37AcFb45A1a8b" },
+    { alias: "your personal account", address: "0x9dabBF114698bd9bFBF6222b9FD6Cd967ECD3850" },
   ];
   const extra = listContacts();
   const lines = [...fixed, ...extra]
@@ -50,7 +50,7 @@ function buildSystemPrompt() {
     .join("\n");
   return `${SYSTEM_PROMPT}
 
-CONTACTOS (direcciones con alias; úsalos cuando el dueño pida pagar a alguien):
+CONTACTS (addresses with aliases; use them when the owner asks to pay someone):
 ${lines}`;
 }
 
@@ -73,7 +73,7 @@ export async function connectMcp() {
   try {
     await client.connect(transport);
   } catch (e) {
-    console.error("🤖 MCP connect falló:", e.message);
+    console.error("🤖 MCP connect failed:", e.message);
     transport.close?.().catch(() => {});
     throw e;
   }
@@ -88,7 +88,7 @@ export async function connectMcp() {
   return mcp;
 }
 
-/** Ejecuta una tool del MCP y devuelve {text, isError}. Reconecta si el MCP murió. */
+/** Runs an MCP tool and returns {text, isError}. Reconnects if the MCP died. */
 async function callMcp(name, args) {
   if (!mcp) await connectMcp();
   try {
@@ -97,8 +97,8 @@ async function callMcp(name, args) {
     const text = content.map((c) => c.text || "").join("\n");
     return { text, isError: !!res?.isError };
   } catch (e) {
-    // El server MCP (wdk-mcp) murió o se cortó: resetear y reconectar una vez.
-    console.error(`🤖 MCP callTool(${name}) falló, reconectando:`, e.message);
+    // The MCP server (wdk-mcp) died or got cut off: reset and reconnect once.
+    console.error(`🤖 MCP callTool(${name}) failed, reconnecting:`, e.message);
     mcp = null;
     await connectMcp();
     const res = await mcp.callTool({ name, arguments: args });
@@ -157,10 +157,10 @@ export async function processMessage(text, history = []) {
   for (let i = 0; i < MAX_LOOP; i++) {
     const data = await deepSeek(messages, toFunctions());
     const msg = data.choices?.[0]?.message;
-    if (!msg) throw new Error("DeepSeek no devolvió mensaje");
+    if (!msg) throw new Error("DeepSeek did not return a message");
 
     if (msg.tool_calls?.length) {
-      // 1) send_token → PROPUESTA (siempre dryRun primero)
+      // 1) send_token → PROPOSAL (always dryRun first)
       const sendCall = msg.tool_calls.find((tc) => tc.function.name === "send_token");
       if (sendCall) {
         let args;
@@ -169,9 +169,9 @@ export async function processMessage(text, history = []) {
         } catch {
           args = {};
         }
-        // El MCP server de WDK valida amount como STRING (el schema dice number — bug upstream)
+        // The WDK MCP server validates amount as STRING (schema says number — upstream bug)
         args.amount = String(args.amount ?? "");
-        // Si el LLM pasó un alias/contacto (ej. "ferretería") en vez de dirección, resolverla
+        // If the LLM passed an alias/contact (e.g. "ferretería") instead of an address, resolve it
         if (!/^0x[0-9a-fA-F]{40}$/.test(args.to || "")) {
           const resolved = resolveAlias(args.to);
           if (resolved) args.to = resolved;
@@ -182,10 +182,10 @@ export async function processMessage(text, history = []) {
           messages.push({ role: "tool", tool_call_id: sendCall.id, content: preview.text });
           continue;
         }
-        // Guardar la propuesta pendiente (state.js guarda campos top-level; el confirm
-        // reconstruye los args del send_token desde ellos — no depender de args del LLM)
+        // Save the pending proposal (state.js saves top-level fields; the confirm
+        // rebuilds the send_token args from them — don't rely on LLM args)
         const proposal = state.addProposal({
-          text: friendlyText(`Enviar ${args.amount} ${args.token || "nativo"} a ${args.to} en ${args.network}`),
+          text: friendlyText(`Send ${args.amount} ${args.token || "native"} to ${args.to} on ${args.network}`),
           to: args.to,
           amount: args.amount,
           token: args.token,
@@ -199,13 +199,13 @@ export async function processMessage(text, history = []) {
         }
         const feeLine =
           previewText && typeof previewText === "object"
-            ? (previewText.fee !== undefined ? ` · fee estimado: ${previewText.fee}` : "")
+            ? (previewText.fee !== undefined ? ` · estimated fee: ${previewText.fee}` : "")
             : "";
-        const reply = friendlyText(`📋 Propuesta de envío:
-${args.amount} ${args.token || "nativo"} → ${args.to}
-Red: ${args.network}${feeLine}
+        const reply = friendlyText(`📋 Transfer proposal:
+${args.amount} ${args.token || "native"} → ${args.to}
+Network: ${args.network}${feeLine}
 
-¿Confirmas el envío? (Solo se ejecuta con tu confirmación)`);
+Do you confirm the transfer? (Only executed with your confirmation)`);
         return { reply, proposal: { id: proposal.id, ...proposal } };
       }
 
@@ -231,20 +231,20 @@ Red: ${args.network}${feeLine}
     return { reply: friendlyText(msg.content) };
   }
 
-  return { reply: "Lo siento, no pude procesar eso. Inténtalo de nuevo o reformula la petición." };
+  return { reply: "Sorry, I couldn't process that. Try again or rephrase your request." };
 }
 
 /**
- * Ejecuta una propuesta confirmada por el usuario.
+ * Executes a proposal confirmed by the user.
  * @returns {Promise<{ok: boolean, message: string, transfer?: object}>}
  */
 export async function confirmProposal(proposalId) {
   const proposal = state.getProposal(proposalId);
-  if (!proposal) return { ok: false, message: "Propuesta no encontrada" };
-  if (proposal.status !== "pending") return { ok: false, message: "Propuesta ya procesada" };
+  if (!proposal) return { ok: false, message: "Proposal not found" };
+  if (proposal.status !== "pending") return { ok: false, message: "Proposal already processed" };
 
   await connectMcp();
-  // Construir args desde los campos de la propuesta (robusto: no depender de args del LLM)
+  // Build args from the proposal fields (robust: don't rely on LLM args)
   const args = {
     network: proposal.network,
     token: proposal.token || "usdt",
@@ -255,7 +255,7 @@ export async function confirmProposal(proposalId) {
   const res = await callMcp("send_token", args);
   if (res.isError) {
     state.setProposalStatus(proposalId, "cancelled");
-    return { ok: false, message: `El envío falló: ${res.text.slice(0, 200)}` };
+    return { ok: false, message: `The transfer failed: ${res.text.slice(0, 200)}` };
   }
 
   state.setProposalStatus(proposalId, "confirmed");
@@ -267,7 +267,7 @@ export async function confirmProposal(proposalId) {
   }
   const txHash = typeof out === "object" ? out.txHash || out.hash || "" : "";
 
-  // Registrar el envío en el ledger para el tracking
+  // Register the transfer in the ledger for tracking
   const transfer = state.addTransfer({
     to: proposal.to,
     amount: Number(proposal.amount),
@@ -278,20 +278,20 @@ export async function confirmProposal(proposalId) {
 
   return {
     ok: true,
-    message: `✅ Envío ejecutado. Te muestro tu comprobante abajo.`,
+    message: `✅ Transfer executed. Your receipt is below.`,
     transfer,
   };
 }
 
-/** Capa web2: transforma respuestas del modelo a lenguaje amigable. */
+/** Web2 layer: transforms model responses into friendly language. */
 export function friendlyText(text = "") {
   let t = String(text);
-  t = t.replace(/\bUSDT₮\b/gi, "dólares");
-  t = t.replace(/\bUSDT\b/gi, "dólares");
+  t = t.replace(/\bUSDT₮\b/gi, "dollars");
+  t = t.replace(/\bUSDT\b/gi, "dollars");
   for (const [addr, alias] of Object.entries(getAliasMap())) {
     t = t.replace(new RegExp(addr, "gi"), alias);
   }
-  // cualquier dirección larga restante → corta
+  // any remaining long address → short
   t = t.replace(/0x[0-9a-fA-F]{20,}/g, (m) => `${m.slice(0, 6)}…${m.slice(-4)}`);
   return t;
 }

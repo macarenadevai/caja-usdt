@@ -1,5 +1,5 @@
-// Sonido de caja registradora ("cha-ching") con Web Audio API — cero assets,
-// cero dependencias. Se dispara al confirmarse un cobro.
+// Cash-register sound ("cha-ching") with the Web Audio API — zero assets,
+// zero dependencies. Fires when a payment is confirmed.
 
 let ctx: AudioContext | null = null;
 
@@ -17,7 +17,7 @@ function ensureCtx(): AudioContext | null {
   }
 }
 
-/** Dos campanadas estilo caja registradora (G6 → C7). */
+/** Two cash-register style chimes (G6 → C7). */
 export function playCashSound() {
   const ac = ensureCtx();
   if (!ac) return;
@@ -37,9 +37,9 @@ export function playCashSound() {
     osc.stop(at + dur + 0.05);
   };
 
-  // El clásico "cha-ching": campanada alta, luego una más aguda
+  // The classic "cha-ching": high chime, then a sharper one
   ding(1567.98, now);       // G6
   ding(2093.0, now + 0.16); // C7
-  // Tercer armónico sutil para calidez
+  // Subtle third harmonic for warmth
   ding(3135.96, now + 0.16, 0.1);
 }

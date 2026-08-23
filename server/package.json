@@ -1,7 +1,7 @@
 {
   "name": "quinto-server",
   "version": "1.0.0",
-  "description": "Backend Quinto — WDK CLI wrapper + API REST + agente AI",
+  "description": "Quinto backend — WDK CLI wrapper + payment detector + AI agent",
   "private": true,
   "type": "module",
   "scripts": {

@@ -31,7 +31,7 @@ export default function Contactos({ onSeleccionar, onCerrar }: Props) {
 
   const guardar = async () => {
     if (!alias.trim() || !/^0x[a-fA-F0-9]{40}$/.test(addr.trim())) {
-      setErr("Necesitas un nombre y una dirección 0x válida");
+      setErr("You need a name and a valid 0x address");
       return;
     }
     try {
@@ -42,7 +42,7 @@ export default function Contactos({ onSeleccionar, onCerrar }: Props) {
       setNuevo(false);
       await load();
     } catch (e: any) {
-      setErr(e.message || "No se pudo guardar");
+      setErr(e.message || "Could not save");
     }
   };
 
@@ -57,7 +57,7 @@ export default function Contactos({ onSeleccionar, onCerrar }: Props) {
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-lg font-black text-white">
-            <BookUser className="h-5 w-5 text-[#9BE8C8]" /> Contactos
+            <BookUser className="h-5 w-5 text-[#9BE8C8]" /> Contacts
           </h2>
           <button
             onClick={onCerrar}
@@ -72,20 +72,20 @@ export default function Contactos({ onSeleccionar, onCerrar }: Props) {
             onClick={() => setNuevo(true)}
             className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#9BE8C8]/50 py-3 text-sm font-bold text-[#9BE8C8] hover:bg-[#9BE8C8]/10"
           >
-            <Plus className="h-4 w-4" /> Nuevo contacto
+            <Plus className="h-4 w-4" /> New contact
           </button>
         ) : (
           <div className="mb-4 space-y-2 rounded-xl border border-[#2A3050] bg-[#1C2038] p-3">
             <input
               value={alias}
               onChange={(e) => setAlias(e.target.value)}
-              placeholder="Nombre (ej. Ferretería López)"
+              placeholder="Name (e.g. López Hardware Store)"
               className="w-full rounded-lg border border-[#2A3050] bg-[#14172B] px-3 py-2 text-sm text-white outline-none placeholder:text-zinc-500 focus:border-[#9BE8C8]"
             />
             <input
               value={addr}
               onChange={(e) => setAddr(e.target.value)}
-              placeholder="Dirección 0x…"
+              placeholder="0x address…"
               className="w-full rounded-lg border border-[#2A3050] bg-[#14172B] px-3 py-2 font-mono text-xs text-white outline-none placeholder:text-zinc-500 focus:border-[#9BE8C8]"
             />
             {err && <p className="text-xs text-red-400">{err}</p>}
@@ -94,7 +94,7 @@ export default function Contactos({ onSeleccionar, onCerrar }: Props) {
                 onClick={guardar}
                 className="flex-1 rounded-lg bg-[#9BE8C8] py-2 text-sm font-bold text-black"
               >
-                Guardar
+                Save
               </button>
               <button
                 onClick={() => {
@@ -103,7 +103,7 @@ export default function Contactos({ onSeleccionar, onCerrar }: Props) {
                 }}
                 className="rounded-lg border border-[#2A3050] px-4 py-2 text-sm font-bold text-zinc-400"
               >
-                Cancelar
+                Cancel
               </button>
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function Contactos({ onSeleccionar, onCerrar }: Props) {
 
         {list.length === 0 && !nuevo && (
           <p className="py-8 text-center text-sm text-zinc-500">
-            Aún no tienes contactos. Guarda una dirección o crea uno.
+            You don't have contacts yet. Save an address or create one.
           </p>
         )}
 
@@ -138,7 +138,7 @@ export default function Contactos({ onSeleccionar, onCerrar }: Props) {
               <button
                 onClick={() => copiar(c.address)}
                 className="rounded-lg p-2 text-zinc-400 hover:text-[#9BE8C8]"
-                title="Copiar dirección"
+                title="Copy address"
               >
                 <Copy className="h-4 w-4" />
               </button>
@@ -148,7 +148,7 @@ export default function Contactos({ onSeleccionar, onCerrar }: Props) {
                   await load();
                 }}
                 className="rounded-lg p-2 text-zinc-500 hover:text-red-400"
-                title="Borrar contacto"
+                title="Delete contact"
               >
                 <Trash2 className="h-4 w-4" />
               </button>

@@ -10,9 +10,9 @@ import { HandCoins, Send, Sparkles } from "lucide-react";
 type Tab = "cobrar" | "enviar" | "agente";
 
 const TABS: { id: Tab; label: string; icon: typeof Send }[] = [
-  { id: "cobrar", label: "Cobrar", icon: HandCoins },
-  { id: "enviar", label: "Enviar", icon: Send },
-  { id: "agente", label: "Agente", icon: Sparkles },
+  { id: "cobrar", label: "Collect", icon: HandCoins },
+  { id: "enviar", label: "Send", icon: Send },
+  { id: "agente", label: "Agent", icon: Sparkles },
 ];
 
 export default function Home() {
@@ -48,11 +48,11 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-lg font-black leading-none">Quinto</h1>
-              <p className="mt-0.5 text-xs text-zinc-500">tu negocio en USD₮</p>
+              <p className="mt-0.5 text-xs text-zinc-500">your business in USD₮</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-[11px] uppercase tracking-widest text-zinc-500">Saldo</p>
+            <p className="text-[11px] uppercase tracking-widest text-zinc-500">Balance</p>
             <p className="font-mono text-lg font-bold tabular-nums text-[#9BE8C8]">{balance ?? "—"}</p>
           </div>
         </div>

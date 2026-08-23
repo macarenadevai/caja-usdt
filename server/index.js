@@ -1,9 +1,9 @@
 /**
- * index.js — API REST de Quinto (localhost:8788)
+ * index.js — Quinto REST API (localhost:8788)
  *
- * Fase 1: status, balance, address, send, transactions.
- * Fase 2 (a continuación): invoices + detector de pagos.
- * Fase 5: rutas del agente.
+ * Phase 1: status, balance, address, send, transactions.
+ * Phase 2 (next): invoices + payment detector.
+ * Phase 5: agent routes.
  */
 import express from "express";
 import cors from "cors";
@@ -49,13 +49,13 @@ function isValidEvmAddress(addr) {
   return typeof addr === "string" && /^0x[a-fA-F0-9]{40}$/.test(addr);
 }
 
-/** Valida un monto: número positivo, máximo 6 decimales (USDT). */
+/** Validates an amount: positive number, max 6 decimals (USDT). */
 function validAmount(amount) {
   const n = Number(amount);
-  if (!Number.isFinite(n) || n <= 0) return { error: "Monto inválido" };
-  if (n > 1_000_000) return { error: "Monto demasiado grande" };
+  if (!Number.isFinite(n) || n <= 0) return { error: "Invalid amount" };
+  if (n > 1_000_000) return { error: "Amount too large" };
   const dec = String(n).split(".")[1];
-  if (dec && dec.length > 6) return { error: "Máximo 6 decimales" };
+  if (dec && dec.length > 6) return { error: "Max 6 decimals" };
   return { n };
 }
 
@@ -81,7 +81,7 @@ app.get("/api/status", async (req, res) => {
   }
 });
 
-// ---- Contactos (alias → dirección) ----
+// ---- Contacts (alias → address) ----
 app.get("/api/contacts", (req, res) => {
   res.json({ contacts: listContacts() });
 });
@@ -149,7 +149,7 @@ app.post("/api/invoice", async (req, res) => {
       network: net,
       address: address.address,
     });
-    // Payload del QR: dirección + monto (el pagador escanea y paga ese monto)
+    // QR payload: address + amount (the payer scans and pays that amount)
     res.status(201).json({
       ...invoice,
       qrPayload: `${address.address}?amount=${amt}&token=${tok}`,
@@ -169,7 +169,7 @@ app.get("/api/invoice/:id", (req, res) => {
 // ---- GET /api/transfer/:id ----
 app.get("/api/transfer/:id", (req, res) => {
   const transfer = state.getTransfer(req.params.id);
-  if (!transfer) return fail(res, "NOT_FOUND", "Envío no encontrado", 404);
+  if (!transfer) return fail(res, "NOT_FOUND", "Transfer not found", 404);
   res.json(transfer);
 });
 
@@ -179,29 +179,29 @@ app.post("/api/send", async (req, res) => {
   const { to, amount, token, network, confirm } = req.body || {};
 
   if (!isValidEvmAddress(to)) {
-    return fail(res, "INVALID_ADDRESS", "Dirección inválida (esperaba 0x... 40 hex)");
+    return fail(res, "INVALID_ADDRESS", "Invalid address (expected 0x... 40 hex)");
   }
   const v = validAmount(amount);
   if (v.error) return fail(res, "INVALID_AMOUNT", v.error);
   const amt = v.n;
   if (confirm !== true) {
-    return fail(res, "CONFIRM_REQUIRED", "Se requiere confirm:true para ejecutar un envío");
+    return fail(res, "CONFIRM_REQUIRED", "confirm:true is required to execute a transfer");
   }
 
   try {
-    // 1. Estimar primero (dry-run): valida saldo/fees sin gastar
+    // 1. Estimate first (dry-run): validates balance/fees without spending
     let estimate;
     try {
       estimate = await wdk.estimateSend({ to, amount: amt, token, network });
     } catch (e) {
       const msg = String(e.message || e);
       if (msg.toLowerCase().includes("balance") || msg.toLowerCase().includes("insufficient")) {
-        return fail(res, "INSUFFICIENT_BALANCE", "Saldo insuficiente", 409);
+        return fail(res, "INSUFFICIENT_BALANCE", "Insufficient balance", 409);
       }
       return fail(res, "ESTIMATE_FAILED", msg, 422);
     }
 
-    // 2. Ejecutar
+    // 2. Execute
     const result = await wdk.sendTokens({ to, amount: amt, token, network });
     const txHash = result?.txHash || result?.hash || result?.txid || null;
 
@@ -226,10 +226,10 @@ app.get("/", (req, res) => {
 });
 
 // ---- Agente (Fase 5) ----
-// POST /api/agent/message {text} → respuesta del agente (+ propuesta si hay envío)
+// POST /api/agent/message {text} → agent reply (+ proposal if there is a transfer)
 app.post("/api/agent/message", async (req, res) => {
   const { text } = req.body || {};
-  if (!text || !text.trim()) return fail(res, "EMPTY_MESSAGE", "Mensaje vacío");
+  if (!text || !text.trim()) return fail(res, "EMPTY_MESSAGE", "Empty message");
   try {
     const out = await agent.processMessage(text, []);
     res.json(out);
@@ -238,7 +238,7 @@ app.post("/api/agent/message", async (req, res) => {
   }
 });
 
-// POST /api/agent/confirm {proposalId} → ejecuta el envío propuesto
+// POST /api/agent/confirm {proposalId} → executes the proposed transfer
 app.post("/api/agent/confirm", async (req, res) => {
   const { proposalId } = req.body || {};
   if (!proposalId) return fail(res, "MISSING_PROPOSAL", "Falta proposalId");
@@ -250,12 +250,12 @@ app.post("/api/agent/confirm", async (req, res) => {
   }
 });
 
-// GET /api/agent/proposals → propuestas pendientes
+// GET /api/agent/proposals → pending proposals
 app.get("/api/agent/proposals", (_req, res) => {
   res.json({ proposals: state.getPendingProposals() });
 });
 
-// POST /api/agent/reject {proposalId} → cancela la propuesta (sin ejecutar)
+// POST /api/agent/reject {proposalId} → cancels the proposal (no execution)
 app.post("/api/agent/reject", (req, res) => {
   const { proposalId } = req.body || {};
   if (!proposalId) return fail(res, "MISSING_PROPOSAL", "Falta proposalId");

@@ -1,11 +1,11 @@
 /**
- * payments.js — Detector de pagos + confirmación de envíos (Fase 2, fix v2)
+ * payments.js — Payment detector + transfer confirmation (Phase 2, fix v2)
  *
- * - Pagos: escanea eventos Transfer del USDT en Sepolia (eth_getLogs) hacia la
- *   dirección de la caja y matchea por MONTO EXACTO con invoices pendientes.
- *   Un fondeo externo (ej. faucet) NO marca pagos falsos.
- * - Envíos: verifica en-chain el receipt de transfers "sent" y los pasa a
- *   "confirmed" cuando la red confirma la tx.
+ * - Payments: scans USDT Transfer events on Sepolia (eth_getLogs) to the
+ *   cashbox address and matches by EXACT AMOUNT against pending invoices.
+ *   An external top-up (e.g. faucet) does NOT count as a payment.
+ * - Transfers: verifies on-chain receipts of "sent" transfers and marks them
+ *   "confirmed" when the network confirms the tx.
  */
 import * as wdk from "./wdk.js";
 import * as state from "./state.js";
@@ -50,12 +50,12 @@ function pad32(address) {
   return "0x" + "0".repeat(24) + address.slice(2).toLowerCase();
 }
 
-/** Receipt de una tx (status 0x1 = éxito). */
+/** Receipt of a tx (status 0x1 = success). */
 async function getReceipt(txHash) {
   return rpc("eth_getTransactionReceipt", [txHash]);
 }
 
-/** Eventos Transfer del USDT hacia la caja desde un bloque dado. */
+/** USDT Transfer events to the cashbox from a given block. */
 async function getIncomingTransfers(fromBlock) {
   const logs = await rpc("eth_getLogs", [
     {
@@ -83,7 +83,7 @@ function txHashUsed(txHash) {
   );
 }
 
-/** Marca invoices pending como pagadas SOLO si hay una Transfer real de monto exacto. */
+/** Marks pending invoices as paid ONLY if there is a real Transfer with exact amount. */
 async function checkInvoices() {
   const pending = state.getPendingInvoices();
   if (pending.length === 0) return;
@@ -97,7 +97,7 @@ async function checkInvoices() {
     return;
   }
 
-  // Primer arranque: no escanear histórico, empezar desde el bloque actual.
+  // First start: don't scan history, start from the current block.
   if (lastScanned == null) {
     state.setMeta("lastScannedBlock", latestBlock);
     return;
@@ -109,7 +109,7 @@ async function checkInvoices() {
   try {
     transfers = await getIncomingTransfers(lastScanned);
   } catch (e) {
-    console.error("payments: eth_getLogs falló:", e.message);
+    console.error("payments: eth_getLogs failed:", e.message);
     return;
   }
 
@@ -129,7 +129,7 @@ async function checkInvoices() {
   state.setMeta("lastScannedBlock", latestBlock);
 }
 
-/** Verifica receipts de envíos sent y los marca confirmed. */
+/** Verifies receipts of sent transfers and marks them confirmed. */
 async function checkTransfers() {
   const sent = state.getSentTransfers();
   for (const tr of sent) {
@@ -140,10 +140,10 @@ async function checkTransfers() {
         const ok = receipt.status === "0x1";
         if (ok) {
           state.markTransferConfirmed(tr.id);
-          console.log(`✅ Envío ${tr.id} confirmado en-chain`);
+          console.log(`✅ Transfer ${tr.id} confirmed on-chain`);
         } else {
           state.markTransferFailed(tr.id, "tx revertida en-chain");
-          console.log(`❌ Envío ${tr.id} revertido en-chain`);
+          console.log(`❌ Transfer ${tr.id} reverted on-chain`);
         }
       }
     } catch (e) {
@@ -168,7 +168,7 @@ export async function tick() {
 export function startPoller() {
   if (timer) return timer;
   timer = setInterval(tick, POLL_MS);
-  console.log(`🔍 Detector de pagos activo (cada ${POLL_MS / 1000}s) — Transfer logs + receipts on-chain`);
+  console.log(`🔍 Payment detector active (every ${POLL_MS / 1000}s) — Transfer logs + on-chain receipts`);
   return timer;
 }
 

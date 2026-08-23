@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Permitir el dev server desde la LAN y Tailscale (Next bloquea Hosts no
+  // Allow the dev server from the LAN and Tailscale (Next blocks Host mismatches)
   // confiables por anti-DNS-rebinding → 403 en los chunks → React no hidrata).
   allowedDevOrigins: ["192.168.1.69", "100.94.104.18", "*.local", "*.tailscale.io"],
   // Proxy del backend: el frontend sirve /api/* desde el mismo origin y Next

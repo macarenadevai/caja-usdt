@@ -1,110 +1,110 @@
-# 🧾 Quinto — tu negocio en USD₮
+# 🧾 Quinto — your business in USD₮
 
 **Aleph Hackathon 2026 · WDK Track (Tether)**
 
-Quinto convierte la wallet de un negocio en una caja registradora en USD₮:
-**cobra** con QR y confirmación en vivo, **envía** remesas con tracking estilo
-paquetería, y **delega** la operación a un agente AI que conecta al WDK a
-través de MCP. Todo non-custodial, multi-chain, sin bancos.
+Quinto turns a business wallet into a USD₮ cash register: **collect** with
+QR + live confirmation, **send** remittances with package-style tracking, and
+**delegate** operations to an AI agent that connects to WDK through MCP.
+Non-custodial, multi-chain, no banks.
 
-> Demo: video de 3 min en `DEMO.md`.
+> Demo: 3-minute video script in `DEMO.md`.
 
 ---
 
-## El problema
+## The problem
 
-En LATAM, un negocio que quiere operar en USD₮ se encuentra con:
+In LATAM, a business that wants to operate in USD₮ runs into:
 
-1. **Cobrar** — la wallet del negocio no es un punto de venta: no hay QR,
-   no hay confirmación visual de que el pago llegó.
-2. **Enviar** — enviar una remesa (proveedor, familia) es una transacción
-   opaca: firmas, esperas, y no sabes si llegó.
-3. **Operar** — gestionar la wallet exige tocar la línea de comandos o
-   depender de herramientas fragmentadas.
+1. **Collecting** — the business wallet is not a point of sale: no QR, no
+   visual confirmation that the payment arrived.
+2. **Sending** — sending a remittance (supplier, family) is an opaque
+   transaction: signatures, waiting, and you can't tell if it arrived.
+3. **Operating** — managing the wallet means touching a command line or
+   depending on fragmented tools.
 
-## La solución
+## The solution
 
-Una sola app con **una sola wallet** (creada por el WDK CLI) y tres vistas:
+A single app with **one wallet** (created by the WDK CLI) and three views:
 
-| Vista | Qué hace | Cómo |
-|-------|----------|------|
-| 💵 **Cobrar** | PDV cripto: monto → QR → el cliente paga → confirmación en vivo | Detector de pagos que verifica receipts on-chain cada 5s |
-| 📦 **Enviar** | Remesas con tracking (enviado → confirmado → fallido) | `wdk send` + verificación de receipt en Sepolia |
-| 🤖 **Agente** | Chat que opera la caja: saldo, envíos, con **confirmación humana** | `wdk-mcp` + DeepSeek (function calling) |
-| 📱 **PWA** | Instalable: tu celular es tu terminal punto de venta | Manifest + Service Worker (offline shell) |
+| View | What it does | How |
+|------|--------------|-----|
+| 💵 **Collect** | Crypto POS: amount → QR → customer pays → live confirmation | Payment detector verifying on-chain receipts every 5s |
+| 📦 **Send** | Remittances with tracking (sent → confirmed → failed) | `wdk send` + receipt verification on Sepolia |
+| 🤖 **Agent** | Chat that operates the cashbox: balance, transfers, with **human confirmation** | `wdk-mcp` + DeepSeek (function calling) |
+| 📱 **PWA** | Installable: your phone is your point-of-sale terminal | Manifest + Service Worker (offline shell) |
 
-### Por qué el WDK es el core
+### Why WDK is the core
 
-Cada operación de wallet pasa por el **WDK CLI** como subprocess
-(`wdk wallet`, `wdk get`, `wdk send`), y el agente AI conversa con la wallet
-a través del **`wdk-mcp` server** (MCP Client en Node). El CLI es el core
-building block de todo el sistema — literalmente cada request del frontend
-termina en un comando `wdk`.
+Every wallet operation goes through the **WDK CLI** as a subprocess
+(`wdk wallet`, `wdk get`, `wdk send`), and the AI agent talks to the wallet
+through the **`wdk-mcp` server** (MCP Client in Node). The CLI is the core
+building block of the whole system — literally every frontend request ends
+in a `wdk` command.
 
 ```
 Frontend (Next.js) ──HTTP──▶ API (Express) ──subprocess──▶ wdk CLI
       │                              │
       │                              └─MCP client──────▶ wdk-mcp server
-      └──── polling ────────────────▶ Detector de pagos (receipts Sepolia)
+      └──── polling ────────────────▶ Payment detector (Sepolia receipts)
 ```
 
-### 🔗 Integración WDK (permalinks)
+### 🔗 WDK integration (permalinks)
 
-| Archivo | Rol WDK |
-|---------|---------|
-| [`server/wdk.js`](https://github.com/macarenadevai/caja-usdt/blob/main/server/wdk.js) | Wrapper del **WDK CLI** como subprocess: `wallet unlock`, `get balance`, `get address`, `send --dry-run`, `send` (core) |
-| [`server/agent.js`](https://github.com/macarenadevai/caja-usdt/blob/main/server/agent.js) | Cliente **MCP** → `wdk-mcp` server: el agente lee saldo y propone `send_token` con `dryRun=true` |
-| [`server/payments.js`](https://github.com/macarenadevai/caja-usdt/blob/main/server/payments.js) | Detector de pagos: confirma receipts on-chain (Sepolia RPC) |
-| [`server/package.json`](https://github.com/macarenadevai/caja-usdt/blob/main/server/package.json) | Dependencias WDK declaradas |
-| [`scripts/ensayo.sh`](https://github.com/macarenadevai/caja-usdt/blob/main/scripts/ensayo.sh) | Prueba end-to-end: cobro → pago real → confirmación → ledger |
+| File | WDK role |
+|------|----------|
+| [`server/wdk.js`](https://github.com/macarenadevai/caja-usdt/blob/main/server/wdk.js) | **WDK CLI** wrapper as subprocess: `wallet unlock`, `get balance`, `get address`, `send --dry-run`, `send` (core) |
+| [`server/agent.js`](https://github.com/macarenadevai/caja-usdt/blob/main/server/agent.js) | **MCP** client → `wdk-mcp` server: the agent reads balance and proposes `send_token` with `dryRun=true` |
+| [`server/payments.js`](https://github.com/macarenadevai/caja-usdt/blob/main/server/payments.js) | Payment detector: confirms on-chain receipts (Sepolia RPC) |
+| [`server/package.json`](https://github.com/macarenadevai/caja-usdt/blob/main/server/package.json) | Declared WDK dependencies |
+| [`scripts/ensayo.sh`](https://github.com/macarenadevai/caja-usdt/blob/main/scripts/ensayo.sh) | End-to-end test: collect → real payment → confirmation → ledger |
 
-### 📦 Paquetes WDK instalados
+### 📦 Installed WDK packages
 
-| Paquete | Versión | Uso |
+| Package | Version | Use |
 |---------|---------|-----|
-| `@tetherto/wdk` | 1.0.0-beta.6 | Core del kit (SDK) |
-| `@tetherto/wdk-cli` | 1.0.0-beta.2 | CLI con `wdk-mcp` bundled — subprocess core del server |
-| `@tetherto/wdk-wallet-evm` | 1.0.0-beta.11 | Wallet EVM (Sepolia, USDT) |
-| `@tetherto/wdk-wallet-evm-erc-4337` | 1.0.0-beta.6 | Módulo ERC-4337 (futuro gasless) |
+| `@tetherto/wdk` | 1.0.0-beta.6 | Core of the kit (SDK) |
+| `@tetherto/wdk-cli` | 1.0.0-beta.2 | CLI with bundled `wdk-mcp` — the server's subprocess core |
+| `@tetherto/wdk-wallet-evm` | 1.0.0-beta.11 | EVM wallet (Sepolia, USDT) |
+| `@tetherto/wdk-wallet-evm-erc-4337` | 1.0.0-beta.6 | ERC-4337 module (future gasless) |
 
-> El agente usa el **`wdk-mcp` server** (bundled con el CLI) como bloque
-> central: `connectMcp()` lo lanza como subprocess y expone sus tools
-> (`get_balance`, `get_address`, `send_token`, …) al LLM vía MCP.
+> The agent uses the **`wdk-mcp` server** (bundled with the CLI) as its core
+> block: `connectMcp()` spawns it as a subprocess and exposes its tools
+> (`get_balance`, `get_address`, `send_token`, …) to the LLM via MCP.
 
 ## Stack
 
 - **Frontend**: Next.js 16, React 19, Tailwind CSS v4, TypeScript
 - **Backend**: Node.js 22, Express 5
 - **Wallet**: WDK CLI `@tetherto/wdk-cli@1.0.0-beta.2` (Tether)
-- **Agente**: `wdk-mcp` (MCP server) + DeepSeek (function calling)
-- **Red demo**: Sepolia (ETH + USDT mock)
+- **Agent**: `wdk-mcp` (MCP server) + DeepSeek (function calling)
+- **Demo network**: Sepolia (ETH + mock USDT)
 
-## Cómo correr
+## How to run
 
-### Prerequisitos
+### Prerequisites
 
-- Node.js ≥ 22.18 (requisito del WDK CLI)
+- Node.js ≥ 22.18 (WDK CLI requirement)
 - WDK CLI: `npm install -g --allow-scripts=@tetherto/wdk-cli @tetherto/wdk-cli@1.0.0-beta.2`
 
-### 1. Crear la wallet del negocio
+### 1. Create the business wallet
 
 ```bash
-export WDK_PASSPHRASE="<tu-passphrase>"
+export WDK_PASSPHRASE="<your-passphrase>"
 wdk wallet create --name caja
 wdk wallet default --name caja
 ```
 
-### 2. Configurar el backend
+### 2. Configure the backend
 
 ```bash
 cd server
 cp .env.example .env
-# edita .env: WDK_PASSPHRASE, DEEPSEEK_API_KEY, PORT=8788
+# edit .env: WDK_PASSPHRASE, DEEPSEEK_API_KEY, PORT=8788
 npm install
 node index.js
 ```
 
-### 3. Levantar el frontend
+### 3. Run the frontend
 
 ```bash
 cd frontend
@@ -112,63 +112,63 @@ npm install
 npm run dev   # http://localhost:3000 (landing) · http://localhost:3000/app (app)
 ```
 
-### 4. Fondear la caja (testnet)
+### 4. Fund the cashbox (testnet)
 
-En Sepolia, el USDT mock se obtiene de faucets (Candide / Pimlico).
-Pide **USDT + ETH** a la dirección de la caja (`wdk get address --network sepolia`).
+On Sepolia, the mock USDT comes from faucets (Candide / Pimlico).
+Request **USDT + ETH** to the cashbox address (`wdk get address --network sepolia`).
 
 ## API
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/status` | Wallet, saldo, dirección |
-| GET | `/api/balance?network=sepolia` | Saldo (native o token) |
-| GET | `/api/address?network=sepolia` | Dirección de la caja |
-| POST | `/api/invoice` `{amount}` | Crea un cobro (QR) |
-| GET | `/api/invoice/:id` | Estado del cobro |
-| POST | `/api/send` `{to, amount, confirm}` | Envía USDT (requiere confirmación) |
-| GET | `/api/transfer/:id` | Estado del envío (tracking) |
-| GET | `/api/transactions` | Ledger completo |
-| POST | `/api/agent/message` `{text}` | Chat con el agente |
-| POST | `/api/agent/confirm` `{proposalId}` | Confirma un envío propuesto |
-| POST | `/api/agent/reject` `{proposalId}` | Rechaza/cancela una propuesta |
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/status` | Wallet, balance, address |
+| GET | `/api/balance?network=sepolia` | Balance (native or token) |
+| GET | `/api/address?network=sepolia` | Cashbox address |
+| POST | `/api/invoice` `{amount}` | Creates a payment (QR) |
+| GET | `/api/invoice/:id` | Payment status |
+| POST | `/api/send` `{to, amount, confirm}` | Sends USDT (requires confirmation) |
+| GET | `/api/transfer/:id` | Transfer status (tracking) |
+| GET | `/api/transactions` | Full ledger |
+| POST | `/api/agent/message` `{text}` | Chat with the agent |
+| POST | `/api/agent/confirm` `{proposalId}` | Confirms a proposed transfer |
+| POST | `/api/agent/reject` `{proposalId}` | Rejects/cancels a proposal |
 
-## Seguridad
+## Security
 
-- **Non-custodial**: el seed vive en la wallet del WDK CLI del negocio,
-  protegido por passphrase (`WDK_PASSPHRASE` en `.env`, nunca en git).
-- **El agente no ejecuta envíos sin confirmación humana**: `send_token`
-  siempre pasa por `dryRun` → propuesta → el humano confirma.
-- La passphrase y la API key están excluidas del repo (`.gitignore`).
+- **Non-custodial**: the seed lives in the business's WDK CLI wallet, protected
+  by a passphrase (`WDK_PASSPHRASE` in `.env`, never in git).
+- **The agent never executes transfers without human confirmation**:
+  `send_token` always goes through `dryRun` → proposal → the human confirms.
+- The passphrase and the API key are excluded from the repo (`.gitignore`).
 
-## Decisiones técnicas clave
+## Key technical decisions
 
-| Decisión | Opción elegida | Por qué |
-|----------|---------------|---------|
-| Core wallet | WDK CLI como subprocess | Prize 1: CLI como core building block; datos oficiales |
-| Confirmación de pagos | Receipts on-chain (RPC Sepolia) | Estado real, no simulado |
-| Detector de pagos | Eventos `Transfer` on-chain (`eth_getLogs`) | Matcheo por monto exacto; un fondeo no marca pagos falsos |
-| Agente AI | MCP client → `wdk-mcp` + DeepSeek | Prize 1: MCP server como bloque central |
-| Frontend | Next.js + Tailwind v4 (template ZTL) | Estética definida, build rápido |
-| Almacenamiento | `state.json` atómico | Cero deps, suficiente para la demo |
+| Decision | Chosen option | Why |
+|----------|---------------|-----|
+| Wallet core | WDK CLI as subprocess | Prize 1: CLI as core building block; official data |
+| Payment confirmation | On-chain receipts (Sepolia RPC) | Real state, not simulated |
+| Payment detector | On-chain `Transfer` events (`eth_getLogs`) | Exact-amount matching; a top-up doesn't fake payments |
+| AI agent | MCP client → `wdk-mcp` + DeepSeek | Prize 1: MCP server as core block |
+| Frontend | Next.js + Tailwind v4 (ZTL template) | Defined aesthetic, fast build |
+| Storage | Atomic `state.json` | Zero deps, enough for the demo |
 
-## Estructura
+## Structure
 
 ```
 aleph-hackathon/
-├── SPEC.md            # Spec (SDD): user stories, plan, decisiones
-├── DEMO.md            # Guion de la demo de 3 min
-├── server/            # Backend Express + WDK
-│   ├── wdk.js         # Wrapper del CLI (core)
-│   ├── payments.js    # Detector de pagos + receipts
+├── SPEC.md            # Spec (SDD): user stories, plan, decisions
+├── DEMO.md            # 3-minute demo script
+├── server/            # Express backend + WDK
+│   ├── wdk.js         # CLI wrapper (core)
+│   ├── payments.js    # Payment detector + receipts
 │   ├── agent.js       # MCP client + DeepSeek
-│   ├── state.js       # Estado persistente
-│   └── index.js       # API REST
+│   ├── state.js       # Persistent state
+│   └── index.js       # REST API
 └── frontend/          # Next.js 16
     ├── components/    # pdv.tsx, enviar.tsx, agente.tsx
-    └── lib/api.ts     # Cliente API
+    └── lib/api.ts     # API client
 ```
 
-## Licencia
+## License
 
 MIT

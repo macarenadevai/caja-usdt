@@ -16,7 +16,7 @@ export default function Pdv() {
   const generate = useCallback(async () => {
     const amt = Number(amount);
     if (!Number.isFinite(amt) || amt <= 0) {
-      setError("Ingresa un monto válido");
+      setError("Enter a valid amount");
       return;
     }
     setError("");
@@ -75,7 +75,7 @@ export default function Pdv() {
       {!invoice && (
         <div className="rounded-2xl border border-[#2A3050] bg-[#1C2038] p-8 shadow-[0_0_60px_rgba(0,255,170,0.05)]">
           <label className="mb-2 block text-sm font-medium text-zinc-400" htmlFor="monto">
-            Monto a cobrar (USD₮)
+            Amount to collect
           </label>
           <div className="flex items-center gap-2 rounded-xl border border-[#2A3050] bg-[#14172B] px-4 py-3 focus-within:border-[#9BE8C8]">
             <span className="text-2xl font-bold text-[#9BE8C8]">$</span>
@@ -148,14 +148,14 @@ export default function Pdv() {
 
               <div className="relative mt-6 flex items-center justify-center gap-2 text-[#9BE8C8]">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm">Escanea y paga — confirmación en vivo</span>
+                <span className="text-sm">Scan & pay — live confirmation</span>
               </div>
 
               <button
                 onClick={reset}
                 className="relative mt-4 inline-flex items-center gap-2 text-sm text-zinc-500 transition hover:text-zinc-300"
               >
-                <RotateCcw className="h-3.5 w-3.5" /> Nuevo cobro
+                <RotateCcw className="h-3.5 w-3.5" /> New payment
               </button>
             </>
           ) : (
@@ -164,7 +164,7 @@ export default function Pdv() {
                 <Check className="h-12 w-12 text-[#9BE8C8] animate-in zoom-in-0 duration-500 delay-150" />
               </div>
               <p className="mt-6 text-3xl font-black text-[#9BE8C8] animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150">
-                ¡Pago recibido!
+                Payment received!
               </p>
               <p className="mt-3 text-6xl font-black leading-none tracking-tight tabular-nums text-white animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200">
                 {formatUsd(invoice.amount)}
@@ -172,11 +172,11 @@ export default function Pdv() {
               <div className="mx-auto mt-5 max-w-sm animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300">
                 <Recibo
                   id={invoice.id}
-                  tipo="Cobro"
+                  tipo="Payment"
                   monto={invoice.amount}
-                  desde="tu cliente"
-                  hacia="tu caja"
-                  estado="Pagado"
+                  desde="your customer"
+                  hacia="your cashbox"
+                  estado="Paid"
                   txHash={invoice.txHash}
                 />
               </div>

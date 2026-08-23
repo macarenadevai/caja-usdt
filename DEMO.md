@@ -1,87 +1,87 @@
-# 🎬 Guion — Demo de 3 minutos (Quinto)
+# 🎬 Script — 3-minute demo (Quinto)
 
-> **Tesis**: NO es "otra app de pagos con IA". Es **la caja registradora de tu negocio en USD₮**.
-> El juez debe ver en los primeros 20 segundos un **negocio cobrando** — no un chat.
-> Audio en español. Producto = protagonista.
+> **Thesis**: it's NOT "another AI payments app". It's **your business's USD₮ cash register**.
+> The judge should see within the first 20 seconds a **business collecting** — not a chat.
+> Audio in English. Product = the protagonist.
 
 ---
 
-## 📋 Setup (antes de grabar)
+## 📋 Setup (before recording)
 
-- Wallets (testnet Sepolia, ya fondeadas):
-  - **CAJA** (negocio): `0x5A6B8B635b6674681682dB4F713faF4001ac6Cb2` — ~90 USDT
-  - **PAGADOR** (cliente): `0x66dEc61c81105249fD38480157C37AcFb45A1a8b` — ~985 USDT
-- Servicios corriendo: backend :8788 + frontend :3000
-  - Landing en `:3000/` · **App en `:3000/app`**
-- **Grabar con** OBS (o similar) sobre el navegador, pantalla completa, resolución 1440p+
-- Preparar terminal con el comando de pago del pagador copiado (para el corte de Cobrar)
-- **Sonido activado**: el *cha-ching* de la caja es parte del momento estrella
+- Wallets (Sepolia testnet, already funded):
+  - **CAJA** (business): `0x5A6B8B635b6674681682dB4F713faF4001ac6Cb2` — ~90 USDT
+  - **PAGADOR** (customer): `0x66dEc61c81105249fD38480157C37AcFb45A1a8b` — ~985 USDT
+- Services running: backend :8788 + frontend :3000
+  - Landing at `:3000/` · **App at `:3000/app`**
+- **Record with** OBS (or similar) over the browser, full screen, 1440p+ resolution
+- Prepare a terminal with the customer's payment command copied (for the Collect cut)
+- **Sound on**: the cash register *cha-ching* is part of the star moment
 
 ---
 
 ## 0:00 — Hook (15s)
 
-**Voz**: "En América Latina, si tienes un negocio y quieres operar en dólares... es un problema. Los bancos te piden historial. Las remesas te comen 10%. Y si aceptas cripto... no tienes caja, tienes una wallet complicada."
+**Voice**: "In Latin America, if you run a business and you want to operate in dollars... it's a problem. Banks demand history. Remittances eat 10%. And if you accept crypto... you don't get a cash register, you get a complicated wallet."
 
-**Pantalla**: abre la **landing** (`:3000/`) — logo ₮ Quinto + "Tu celular es tu terminal de cobro" + el **teléfono-terminal** (la app de Quinto corriendo en un iPhone mockup). Scroll rápido: el problema → cómo funciona. Clic "Abrir la app" → entra a la app (`:3000/app`). **Frase clave: "Tu celular es tu terminal punto de venta."**
+**Screen**: open the **landing** (`:3000/`) — ₮ Quinto logo + "Your phone is your payment terminal" + the **terminal-phone** (the Quinto app running in an iPhone mockup). Quick scroll: the problem → how it works. Click "Open Quinto" → enter the app (`:3000/app`). **Key phrase: "Your phone is your point-of-sale terminal."**
 
 ---
 
-## 0:15 — Cobrar (40s) ⭐ EL MOMENTO ESTRELLA
+## 0:15 — Collect (40s) ⭐ THE STAR MOMENT
 
-**Voz**: "Quinto convierte tu wallet en una caja registradora. Abres la vista Cobrar, pones el monto... y listo: tu cliente paga con lo que sea que tenga — hasta una wallet que nadie instaló para esto."
+**Voice**: "Quinto turns your wallet into a cash register. You open the Collect view, set the amount... and that's it: your customer pays with whatever they have — even a wallet nobody installed for this."
 
-**Pantalla** (frontend `:3000/app` → tab Cobrar):
-1. Monto `12.50` → se genera el **QR** al instante (pantalla-terminal: monto gigante + QR)
-2. *Corte*: terminal → el cliente (PAGADOR) ejecuta su pago:
+**Screen** (frontend `:3000/app` → Collect tab):
+1. Amount `12.50` → the **QR** generates instantly (terminal screen: giant amount + QR)
+2. *Cut*: terminal → the customer (PAGADOR) runs their payment:
    ```
    wdk send --network sepolia --wallet pagador --to 0x5A6B8B... --amount 12.5 --token usdt
-   ✓ Transacción enviada: 0x...
+   ✓ Transaction sent: 0x...
    ```
-3. **Volver al dashboard**: el QR se cierra solo → **"✅ Pago recibido +12.50 USDT"** en vivo + **🎵 cha-ching** (sonido de caja registradora)
-4. Muestra el saldo subir (ledger/header)
+3. **Back to the dashboard**: the QR closes by itself → **"✅ Payment received +12.50 USDT"** live + **🎵 cha-ching** (cash register sound)
+4. Show the balance going up (ledger/header)
 
-**Clave**: el pago se detecta SOLO (eventos on-chain, no un webhook inventado). Eso se dice en una frase.
-
----
-
-## 0:55 — Enviar (25s)
-
-**Voz**: "Y cuando el negocio tiene que mandar dinero —una remesa, un proveedor— Quinto lo envía con tracking. Como un paquete, pero para dinero."
-
-**Pantalla** (tab Enviar):
-1. Dirección + monto `8` → confirmar
-2. **Stepper visible**: `Enviado → Confirmado` (mientras la red confirma)
-3. "Mira: la transacción quedó confirmada en la cadena. Tú y tu proveedor ven lo mismo."
-4. **Bonus**: mostrar el **historial de remesas** que quedó debajo (todas las operaciones con su estado)
+**Key**: the payment is detected on its own (on-chain events, not a made-up webhook). Say that in one sentence.
 
 ---
 
-## 1:20 — Delegar (40s) — "el agente de Quinto"
+## 0:55 — Send (25s)
 
-**Voz**: "Y lo mejor: no tienes que tocar la caja. Le hablas a tu agente de caja... y él propone, tú confirmas."
+**Voice**: "And when the business has to send money — a remittance, a supplier — Quinto sends it with tracking. Like a package, but for money."
 
-**Pantalla** (tab Agente):
-1. Escribir: *"manda 5 USDT a 0x66dE... por la materia prima"*
-2. El agente responde con la **propuesta**: monto, destino, token → botón **Confirmar**
-3. Click → envío real → **tracking confirmado** en el chat (sent → confirmed en vivo)
-4. **Frase clave**: "El agente propone. El humano decide. Así opera la caja: contigo siempre al mando."
-
----
-
-## 2:00 — Impacto + cierre (30s)
-
-**Voz**: "Una caja. Un solo libro de cuentas. Todo tu negocio en USD₮: lo que cobras, lo que envías, lo que delegas. Sin bancos, sin intermediarios, sin que tu cliente sepa siquiera qué es una blockchain."
-
-**Pantalla**: historial/ledger final (cobro +12.50, envíos confirmados) → volver a la **landing** → logo ₮ + "Quinto — tu negocio en USD₮ · construido con Tether WDK".
+**Screen** (Send tab):
+1. Address + amount `8` → confirm
+2. **Stepper visible**: `Sent → Confirmed` (while the network confirms)
+3. "Look: the transaction is confirmed on-chain. You and your supplier see the same thing."
+4. **Bonus**: show the **transfer history** below (every operation with its status)
 
 ---
 
-## 🎥 Notas de producción
+## 1:20 — Delegate (40s) — "the Quinto agent"
 
-1. **Ensayo en frío antes de grabar**: corre `~/aleph-hackathon/scripts/ensayo.sh` 2 veces — el flujo debe salir perfecto (pago detectado <10s).
-2. **El corte del pago del cliente**: el pago del PAGADOR se hace con CLI en otra terminal/ventana — cortar a pantalla completa del navegador mientras el QR está vivo.
-3. **Timing**: si el pago tarda >15s en confirmarse, espera a que el "Pago recibido" aparezca ANTES de avanzar al siguiente segmento (el detector sondea cada 5s, normalmente es <10s).
-4. **Fondo**: mantener la estética del producto (dark + verde neón). No mostrar código del server en cámara.
-5. **Fallback**: si el agente fallara en vivo (LLM lento), cortar al flujo Enviar y mencionar el agente de pasada — NUNCA dejar un silencio.
-6. **Duración dura**: 2:30-3:00. Si se pasa, recortar Enviar a 15s (el stepper se entiende igual).
+**Voice**: "And the best part: you don't have to touch the cashbox. You talk to your cashbox agent... and it proposes, you confirm."
+
+**Screen** (Agent tab):
+1. Type: *"send 5 USDT to 0x66dE... for the raw materials"*
+2. The agent replies with the **proposal**: amount, destination, token → **Confirm** button
+3. Click → real transfer → **confirmed tracking** in the chat (sent → confirmed live)
+4. **Key phrase**: "The agent proposes. The human decides. That's how the cashbox operates: you're always in control."
+
+---
+
+## 2:00 — Impact + closing (30s)
+
+**Voice**: "One cashbox. One ledger. Your whole business in USD₮: what you collect, what you send, what you delegate. No banks, no intermediaries, and your customer never even needs to know what a blockchain is."
+
+**Screen**: final history/ledger (collect +12.50, confirmed transfers) → back to the **landing** → ₮ logo + "Quinto — your business in USD₮ · built with Tether WDK".
+
+---
+
+## 🎥 Production notes
+
+1. **Cold rehearsal before recording**: run `~/aleph-hackathon/scripts/ensayo.sh` twice — the flow must come out perfect (payment detected <10s).
+2. **The customer-payment cut**: the PAGADOR payment is done via CLI in another terminal/window — cut to full-screen browser while the QR is alive.
+3. **Timing**: if the payment takes >15s to confirm, wait for the "Payment received" toast to appear BEFORE moving to the next segment (the detector polls every 5s, usually <10s).
+4. **Background**: keep the product aesthetic (dark + neon green). Never show server code on camera.
+5. **Fallback**: if the agent fails live (slow LLM), cut to the Send flow and mention the agent in passing — NEVER leave silence.
+6. **Hard duration**: 2:30–3:00. If it runs over, trim Send to 15s (the stepper still reads fine).
