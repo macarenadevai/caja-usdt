@@ -25,6 +25,7 @@ export const metadata: Metadata = {
     "apple-mobile-web-app-capable": "yes",
   },
   icons: {
+    icon: "/icon.svg",
     apple: "/apple-touch-icon.png",
   },
   manifest: "/manifest.webmanifest",
