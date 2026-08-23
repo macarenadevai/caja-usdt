@@ -100,7 +100,7 @@ const PROBLEMAS = [
   {
     icon: WifiOff,
     titulo: "Apps cripto",
-    detalle: "Hechas para traders, no para negocios que solo quieren cobrar.",
+    detalle: "Hechas para gente experimentada, no para negocios que solo quieren cobrar.",
   },
 ] as const;
 
@@ -113,7 +113,7 @@ const PASOS = [
   {
     icon: Send,
     titulo: "Envía",
-    detalle: "Remesas y pagos directos, rastreados en-chain: Enviado → Confirmado.",
+    detalle: "Remesas y pagos directos, rastreados onchain: Enviado → Confirmado.",
   },
   {
     icon: Bot,
@@ -235,20 +235,15 @@ export default function Landing() {
         <div className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[#9BE8C8]/10 blur-3xl" />
         <div className="relative mx-auto grid max-w-4xl items-center gap-12 px-5 pb-20 pt-16 md:grid-cols-[1.1fr_0.9fr] md:pb-28 md:pt-24">
           <div>
-            <Reveal>
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#9BE8C8]/25 bg-[#9BE8C8]/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-[#9BE8C8]">
-                Aleph 2026 · WDK by Tether
-              </span>
-            </Reveal>
             <Reveal delay={120}>
               <h1 className="mt-6 text-[2.75rem] font-black leading-[1.02] tracking-tight md:text-6xl">
-                La caja registradora de tu negocio, <span className="text-[#9BE8C8]">en USD₮</span>
+                El punto de venta para tu negocio, cobrando en <span className="text-[#9BE8C8]">dólares digitales</span>
               </h1>
             </Reveal>
             <Reveal delay={240}>
               <p className="mt-5 max-w-md text-lg text-zinc-400">
-                Cobra, envía y delega pagos en dólares estables desde tu celular.
-                Sin banco, sin comisiones de 8%, sin KYC.
+                Cobra, envía y realiza pagos autónomos en dólares digitales desde tu celular.
+                Sin bancos, comisiones excesivas, y sin datos personales innecesarios.
               </p>
             </Reveal>
             <Reveal delay={360}>
@@ -299,8 +294,9 @@ export default function Landing() {
             })}
           </div>
           <Reveal delay={200}>
-            <p className="mt-6 text-sm text-zinc-500">
-              Quinto lo resuelve: tu celular se vuelve la terminal y el USD₮ tu moneda.
+            <p className="mt-8 text-center text-lg font-black leading-snug tracking-tight md:text-2xl">
+              Quinto lo resuelve: <span className="text-[#9BE8C8]">tu celular se vuelve la terminal</span> y los
+              <span className="text-[#9BE8C8]"> dólares digitales tu moneda</span>
             </p>
           </Reveal>
         </div>
@@ -341,9 +337,9 @@ export default function Landing() {
         <div className="pointer-events-none absolute bottom-0 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-[#9BE8C8]/10 blur-3xl" />
         <Reveal className="relative mx-auto max-w-2xl px-5 text-center">
           <h2 className="text-3xl font-black leading-tight tracking-tight md:text-5xl">
-            Abre tu caja en <span className="text-[#9BE8C8]">10 segundos</span>
+            Listo para funcionar en <span className="text-[#9BE8C8]">10 segundos</span>
           </h2>
-          <p className="mt-4 text-zinc-400">Sepolia testnet · sin registro · sin tarjeta</p>
+          <p className="mt-4 text-zinc-400">Sin registro · Sin tarjeta</p>
           <a
             href="/app"
             className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-[#9BE8C8] px-8 py-4 text-xl font-black text-black transition-all hover:bg-[#7BCFAF] hover:shadow-[0_0_40px_rgba(0,255,170,0.45)]"
@@ -355,14 +351,16 @@ export default function Landing() {
 
       {/* ===== Footer ===== */}
       <footer className="border-t border-white/5 py-6">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-5 text-xs text-zinc-600">
-          <span className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#9BE8C8] text-xs font-black text-black">
-              ₮
-            </span>
-            Quinto · tu negocio en USD₮
-          </span>
-          <span>Aleph 2026 · WDK by Tether</span>
+        <div className="mx-auto max-w-4xl px-5 text-center text-xs text-zinc-500">
+          Desarrollado por{" "}
+          <a
+            href="https://www.zerotwolabs.xyz/"
+            target="_blank"
+            rel="noreferrer"
+            className="font-bold text-zinc-300 transition-colors hover:text-[#9BE8C8]"
+          >
+            Zero Two Labs
+          </a>
         </div>
       </footer>
     </main>
