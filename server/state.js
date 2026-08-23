@@ -20,7 +20,7 @@ function defaultState() {
     transfers: [],    // {id, to, amount, token, network, status, txHash?, createdAt, confirmedAt?, error?}
     proposals: [],    // {id, text, to, amount, token, network, status: pending|confirmed|cancelled, createdAt, executedAt?}
     ledger: [],       // {type, id, title, amount, token, status, createdAt, meta?}
-    meta: {},         // key/value (último bloque escaneado, etc.)
+    meta: {},         // key/value (last scanned block, etc.)
   };
 }
 

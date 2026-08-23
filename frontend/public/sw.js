@@ -20,7 +20,7 @@ self.addEventListener("fetch", (e) => {
   // Nunca cachear la API (datos en vivo)
   if (url.pathname.startsWith("/api/") || url.origin !== self.location.origin) return;
 
-  // Navegación: red primero, fallback al shell cacheado
+  // Navigation: network first, fallback to the cached shell
   if (e.request.mode === "navigate") {
     e.respondWith(
       fetch(e.request).catch(() => caches.match("/"))

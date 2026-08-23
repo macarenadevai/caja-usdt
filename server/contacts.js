@@ -12,7 +12,6 @@ const FILE = path.join(DATA_DIR, "contactos.json");
 export const FIXED_ALIASES = {
   "0x5a6b8b635b6674681682db4f713faf4001ac6cb2": "your cashbox",
   "0x66dec61c81105249fd38480157c37acfb45a1a8b": "your customer",
-  "0x9dabbf114698bd9bfbf6222b9fd6cd967ecd3850": "your personal account",
 };
 
 const ADDR_RE = /^0x[0-9a-fA-F]{40}$/;

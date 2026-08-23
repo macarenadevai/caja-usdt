@@ -132,7 +132,6 @@ export const shortAddress = (a: string) => (a ? `${a.slice(0, 6)}…${a.slice(-4
 export const KNOWN_ALIASES: Record<string, string> = {
   "0x5a6b8b635b6674681682db4f713faf4001ac6cb2": "your cashbox",
   "0x66dec61c81105249fd38480157c37acfb45a1a8b": "your test customer",
-  "0x9dabbf114698bd9bfbf6222b9fd6cd967ecd3850": "your personal account",
 };
 
 /** Friendly label for an address: known alias or short address. */
