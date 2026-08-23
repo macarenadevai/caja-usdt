@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api, type Transfer, formatUsd, shortAddress } from "@/lib/api";
-import { Check, Loader2, Send, Sparkles, X } from "lucide-react";
+import { Check, Send, Sparkles, X } from "lucide-react";
 
 interface Msg {
   id: number;
@@ -57,21 +57,27 @@ export default function Agente() {
 
   const confirm = async (msg: Msg, ok: boolean) => {
     if (!msg.proposalId) return;
-    setMsgs((m) => m.map((x) => (x.id === msg.id ? { ...x, proposalId: undefined, text: x.text } : x)));
+    setMsgs((m) => m.map((x) => (x.id === msg.id ? { ...x, proposalId: undefined } : x)));
     setLoading(true);
     try {
       if (!ok) {
+        // Cancelar también en el server: la propuesta no debe quedar pendiente.
+        try {
+          await api.agentReject(msg.proposalId);
+        } catch {
+          /* el rechazo local es suficiente para la demo */
+        }
         setMsgs((m) => [...m, { id: nextId++, role: "agent", text: "❌ Envío cancelado." }]);
-        return;
-      }
-      const res = await api.agentConfirm(msg.proposalId);
-      if (res.ok) {
-        setMsgs((m) => [
-          ...m,
-          { id: nextId++, role: "agent", text: res.message, transfer: res.transfer },
-        ]);
       } else {
-        setMsgs((m) => [...m, { id: nextId++, role: "agent", text: res.message, error: true }]);
+        const res = await api.agentConfirm(msg.proposalId);
+        if (res.ok) {
+          setMsgs((m) => [
+            ...m,
+            { id: nextId++, role: "agent", text: res.message, transfer: res.transfer },
+          ]);
+        } else {
+          setMsgs((m) => [...m, { id: nextId++, role: "agent", text: res.message, error: true }]);
+        }
       }
     } catch (e) {
       setMsgs((m) => [...m, { id: nextId++, role: "agent", text: "Error: " + (e instanceof Error ? e.message : "desconocido"), error: true }]);
@@ -80,6 +86,25 @@ export default function Agente() {
       scrollDown();
     }
   };
+
+  // Polling del envío del agente: sent → confirmed (receipts on-chain)
+  const activeTransferId = [...msgs]
+    .reverse()
+    .find((m) => m.transfer?.status === "sent")?.transfer?.id;
+  useEffect(() => {
+    if (!activeTransferId) return;
+    const t = setInterval(async () => {
+      try {
+        const tr = await api.getTransfer(activeTransferId);
+        setMsgs((m) =>
+          m.map((x) => (x.transfer && x.transfer.id === tr.id ? { ...x, transfer: tr } : x))
+        );
+      } catch {
+        /* reintenta */
+      }
+    }, 2000);
+    return () => clearInterval(t);
+  }, [activeTransferId]);
 
   return (
     <div className="mx-auto flex h-[70vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-[#1A1A1A] bg-[#111111]">

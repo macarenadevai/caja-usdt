@@ -20,7 +20,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
-app.use(cors());
+// CORS: solo el frontend local (dev) — no abrir a cualquier origen.
+const ALLOWED_ORIGINS = new Set([
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  process.env.CORS_ORIGIN || "",
+].filter(Boolean));
+app.use(
+  cors({
+    origin(origin, cb) {
+      // Sin header ACAO → el navegador bloquea; sin error 500.
+      if (!origin || ALLOWED_ORIGINS.has(origin)) return cb(null, true);
+      return cb(null, false);
+    },
+  })
+);
 app.use(express.json());
 
 const PORT = process.env.PORT || 8788;
@@ -32,6 +46,16 @@ function fail(res, code, message, http = 400) {
 
 function isValidEvmAddress(addr) {
   return typeof addr === "string" && /^0x[a-fA-F0-9]{40}$/.test(addr);
+}
+
+/** Valida un monto: número positivo, máximo 6 decimales (USDT). */
+function validAmount(amount) {
+  const n = Number(amount);
+  if (!Number.isFinite(n) || n <= 0) return { error: "Monto inválido" };
+  if (n > 1_000_000) return { error: "Monto demasiado grande" };
+  const dec = String(n).split(".")[1];
+  if (dec && dec.length > 6) return { error: "Máximo 6 decimales" };
+  return { n };
 }
 
 // ---- GET /api/status ----
@@ -81,7 +105,8 @@ app.get("/api/address", async (req, res) => {
 
 // ---- GET /api/transactions ----
 app.get("/api/transactions", (req, res) => {
-  const limit = Math.min(Number(req.query.limit) || 100, 500);
+  const raw = Number(req.query.limit);
+  const limit = Number.isFinite(raw) ? Math.min(Math.max(Math.trunc(raw), 1), 500) : 100;
   res.json({ transactions: state.getLedger(limit) });
 });
 
@@ -90,10 +115,9 @@ app.get("/api/transactions", (req, res) => {
 app.post("/api/invoice", async (req, res) => {
   const { amount, token, network } = req.body || {};
 
-  const amt = Number(amount);
-  if (!Number.isFinite(amt) || amt <= 0) {
-    return fail(res, "INVALID_AMOUNT", "Monto inválido");
-  }
+  const v = validAmount(amount);
+  if (v.error) return fail(res, "INVALID_AMOUNT", v.error);
+  const amt = v.n;
 
   try {
     const net = network || wdk.DEFAULT_NETWORK;
@@ -137,10 +161,9 @@ app.post("/api/send", async (req, res) => {
   if (!isValidEvmAddress(to)) {
     return fail(res, "INVALID_ADDRESS", "Dirección inválida (esperaba 0x... 40 hex)");
   }
-  const amt = Number(amount);
-  if (!Number.isFinite(amt) || amt <= 0) {
-    return fail(res, "INVALID_AMOUNT", "Monto inválido");
-  }
+  const v = validAmount(amount);
+  if (v.error) return fail(res, "INVALID_AMOUNT", v.error);
+  const amt = v.n;
   if (confirm !== true) {
     return fail(res, "CONFIRM_REQUIRED", "Se requiere confirm:true para ejecutar un envío");
   }
@@ -210,6 +233,17 @@ app.post("/api/agent/confirm", async (req, res) => {
 // GET /api/agent/proposals → propuestas pendientes
 app.get("/api/agent/proposals", (_req, res) => {
   res.json({ proposals: state.getPendingProposals() });
+});
+
+// POST /api/agent/reject {proposalId} → cancela la propuesta (sin ejecutar)
+app.post("/api/agent/reject", (req, res) => {
+  const { proposalId } = req.body || {};
+  if (!proposalId) return fail(res, "MISSING_PROPOSAL", "Falta proposalId");
+  const p = state.getProposal(proposalId);
+  if (!p) return fail(res, "NOT_FOUND", "Propuesta no encontrada", 404);
+  if (p.status !== "pending") return fail(res, "ALREADY_PROCESSED", "Propuesta ya procesada");
+  state.setProposalStatus(proposalId, "cancelled");
+  res.json({ ok: true, message: "Propuesta cancelada." });
 });
 
 app.listen(PORT, () => {

@@ -90,9 +90,17 @@ export async function execWdk(args, opts = {}) {
   }
 }
 
-/** Asegura que la wallet esté desbloqueada en el daemon (idempotente). */
+// Cache del unlock: el daemon de wdk mantiene la wallet desbloqueada ~5 min.
+// Evita un `wallet unlock` por cada operación (balance + send + detector…).
+const UNLOCK_TTL_MS = 60_000;
+const unlockCache = new Map(); // wallet -> timestamp
+
+/** Asegura que la wallet esté desbloqueada en el daemon (idempotente + cacheado). */
 export async function ensureUnlocked(wallet = WALLET) {
+  const last = unlockCache.get(wallet) || 0;
+  if (Date.now() - last < UNLOCK_TTL_MS) return { cached: true };
   const res = await execWdk(["wallet", "unlock"], { wallet });
+  unlockCache.set(wallet, Date.now());
   return res;
 }
 

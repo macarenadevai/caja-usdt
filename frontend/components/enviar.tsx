@@ -47,8 +47,9 @@ export default function Enviar() {
 
   // Polling del estado del envío (sent → confirmed vía receipts on-chain)
   const transferId = transfer?.id;
+  const transferDone = transfer?.status === "confirmed" || transfer?.status === "failed";
   useEffect(() => {
-    if (!transferId) return;
+    if (!transferId || transferDone) return;
     const t = setInterval(async () => {
       try {
         const tr = await api.getTransfer(transferId);
@@ -58,7 +59,7 @@ export default function Enviar() {
       }
     }, 2000);
     return () => clearInterval(t);
-  }, [transferId]);
+  }, [transferId, transferDone]);
 
   const reset = () => {
     setTransfer(null);

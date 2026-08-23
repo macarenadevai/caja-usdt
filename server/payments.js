@@ -14,7 +14,7 @@ const POLL_MS = 5000;
 const SEPOLIA_RPC = process.env.SEPOLIA_RPC || "https://ethereum-sepolia-rpc.publicnode.com";
 const USDT_SEPOLIA = "0xd077A400968890Eacc75cdc901F0356c943e4fDb";
 const USDT_DECIMALS = 6;
-const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"; // keccak("Transfer(address,address,address)")
+const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"; // keccak("Transfer(address,address,uint256)")
 
 let timer = null;
 let cachedCajaAddress = null;
@@ -28,14 +28,21 @@ async function cajaAddress() {
 }
 
 async function rpc(method, params) {
-  const res = await fetch(SEPOLIA_RPC, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
-  });
-  const data = await res.json();
-  if (data?.error) throw new Error(`${method}: ${data.error.message}`);
-  return data?.result;
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 10_000);
+  try {
+    const res = await fetch(SEPOLIA_RPC, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+      signal: ctrl.signal,
+    });
+    const data = await res.json();
+    if (data?.error) throw new Error(`${method}: ${data.error.message}`);
+    return data?.result;
+  } finally {
+    clearTimeout(to);
+  }
 }
 
 /** 0x + 24 ceros + address (para topics) */

@@ -45,8 +45,10 @@ export function saveState() {
 }
 
 // ---- IDs ----
+import crypto from "node:crypto";
+
 export function newId(prefix) {
-  return `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return `${prefix}_${Date.now().toString(36)}${crypto.randomUUID().slice(0, 6)}`;
 }
 
 // ---- Invoices ----

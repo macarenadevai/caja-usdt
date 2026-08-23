@@ -70,6 +70,11 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ proposalId }),
     }),
+  agentReject: (proposalId: string) =>
+    req<{ ok: boolean; message: string }>("/api/agent/reject", {
+      method: "POST",
+      body: JSON.stringify({ proposalId }),
+    }),
 };
 
 export interface Proposal {

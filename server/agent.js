@@ -45,7 +45,13 @@ export async function connectMcp() {
     stderr: "pipe",
   });
   const client = new Client({ name: "caja-agent", version: "1.0.0" });
-  await client.connect(transport);
+  try {
+    await client.connect(transport);
+  } catch (e) {
+    console.error("🤖 MCP connect falló:", e.message);
+    transport.close?.().catch(() => {});
+    throw e;
+  }
   const { tools } = await client.listTools();
   toolDefs = tools.map((t) => ({
     name: t.name,
@@ -57,12 +63,24 @@ export async function connectMcp() {
   return mcp;
 }
 
-/** Ejecuta una tool del MCP y devuelve {text, isError}. */
+/** Ejecuta una tool del MCP y devuelve {text, isError}. Reconecta si el MCP murió. */
 async function callMcp(name, args) {
-  const res = await mcp.callTool({ name, arguments: args });
-  const content = res?.content || [];
-  const text = content.map((c) => c.text || "").join("\n");
-  return { text, isError: !!res?.isError };
+  if (!mcp) await connectMcp();
+  try {
+    const res = await mcp.callTool({ name, arguments: args });
+    const content = res?.content || [];
+    const text = content.map((c) => c.text || "").join("\n");
+    return { text, isError: !!res?.isError };
+  } catch (e) {
+    // El server MCP (wdk-mcp) murió o se cortó: resetear y reconectar una vez.
+    console.error(`🤖 MCP callTool(${name}) falló, reconectando:`, e.message);
+    mcp = null;
+    await connectMcp();
+    const res = await mcp.callTool({ name, arguments: args });
+    const content = res?.content || [];
+    const text = content.map((c) => c.text || "").join("\n");
+    return { text, isError: !!res?.isError };
+  }
 }
 
 /** Function schemas estilo OpenAI/DeepSeek a partir de las tools MCP. */
@@ -80,16 +98,23 @@ function toFunctions() {
 async function deepSeek(messages, functions) {
   const key = process.env.DEEPSEEK_API_KEY;
   if (!key) throw new Error("DEEPSEEK_API_KEY no configurada en server/.env");
-  const res = await fetch(DEEPSEEK_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-    body: JSON.stringify({ model: MODEL, messages, tools: functions, tool_choice: "auto" }),
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(`DeepSeek HTTP ${res.status}: ${body.slice(0, 200)}`);
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 30_000);
+  try {
+    const res = await fetch(DEEPSEEK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      body: JSON.stringify({ model: MODEL, messages, tools: functions, tool_choice: "auto" }),
+      signal: ctrl.signal,
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      throw new Error(`DeepSeek HTTP ${res.status}: ${body.slice(0, 200)}`);
+    }
+    return res.json();
+  } finally {
+    clearTimeout(to);
   }
-  return res.json();
 }
 
 /**
@@ -127,14 +152,14 @@ export async function processMessage(text, history = []) {
           messages.push({ role: "tool", tool_call_id: sendCall.id, content: preview.text });
           continue;
         }
-        // Guardar la propuesta pendiente con los args originales (sin dryRun)
+        // Guardar la propuesta pendiente (state.js guarda campos top-level; el confirm
+        // reconstruye los args del send_token desde ellos — no depender de args del LLM)
         const proposal = state.addProposal({
           text: `Enviar ${args.amount} ${args.token || "nativo"} a ${args.to} en ${args.network}`,
           to: args.to,
           amount: args.amount,
           token: args.token,
           network: args.network,
-          args: { ...args, dryRun: false },
         });
         let previewText = preview.text;
         try {
