@@ -113,6 +113,87 @@ const PASOS = [
   },
 ] as const;
 
+/**
+ * Mockup del teléfono-terminal — CSS puro.
+ * Comunica la tesis "tu celular es tu terminal punto de venta":
+ * marco de iPhone con isla dinámica, la app de Caja en pantalla
+ * (monto + QR + confirmación) y tabs inferiores, todo animado.
+ */
+function PhoneMockup() {
+  return (
+    <div className="relative mx-auto w-[250px]">
+      {/* Glow */}
+      <div className="pointer-events-none absolute -inset-10 rounded-[4rem] bg-[#00FFAA]/15 blur-3xl" />
+      {/* Botones laterales */}
+      <div className="absolute -left-[3px] top-24 h-8 w-[3px] rounded-l bg-[#2A2A2A]" />
+      <div className="absolute -left-[3px] top-36 h-8 w-[3px] rounded-l bg-[#2A2A2A]" />
+      <div className="absolute -right-[3px] top-28 h-14 w-[3px] rounded-r bg-[#2A2A2A]" />
+
+      {/* Marco */}
+      <div className="relative animate-float rounded-[2.6rem] border-[6px] border-[#2A2A2A] bg-[#0A0A0A] p-2 shadow-[0_24px_80px_rgba(0,0,0,0.7)]">
+        {/* Isla dinámica */}
+        <div className="relative mx-auto mt-0.5 flex h-6 w-24 items-center justify-center rounded-full bg-black">
+          <div className="h-2.5 w-8 rounded-full bg-[#0D0D0D]" />
+        </div>
+
+        {/* Pantalla */}
+        <div className="mt-2 overflow-hidden rounded-[2rem] bg-[#0A0A0A] px-3.5 pb-3">
+          {/* Status bar */}
+          <div className="flex items-center justify-between px-1 pt-1.5 text-[9px] font-bold text-zinc-500">
+            <span>9:41</span>
+            <span className="flex items-center gap-1">
+              <span className="inline-block h-1.5 w-3 rounded-[2px] bg-zinc-500" />
+              <span className="inline-block h-2 w-2 rounded-full bg-zinc-500" />
+            </span>
+          </div>
+
+          {/* Header de la app */}
+          <div className="mt-2 flex items-center gap-1.5">
+            <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#00FFAA] text-[10px] font-black text-black">
+              ₮
+            </span>
+            <span className="text-[10px] font-black tracking-tight">Caja</span>
+            <span className="ml-auto rounded-md bg-[#00FFAA]/10 px-1.5 py-0.5 font-mono text-[8px] font-bold text-[#00FFAA]">
+              93.75 USDT
+            </span>
+          </div>
+
+          {/* Monto + QR */}
+          <div className="mt-3 text-center">
+            <p className="text-[8px] font-bold uppercase tracking-[0.3em] text-zinc-500">
+              Monto a cobrar
+            </p>
+            <p className="mt-1 text-4xl font-black leading-none tracking-tight tabular-nums">
+              $12.50
+            </p>
+            <div className="mx-auto mt-2.5 w-fit animate-pulse-ring rounded-lg bg-white p-1.5">
+              <QRCodeSVG
+                value="caja://demo-12.50"
+                size={82}
+                fgColor="#0A0A0A"
+                bgColor="#FFFFFF"
+                level="M"
+                className="h-auto w-[82px]"
+              />
+            </div>
+            <p className="mt-2 text-[9px] text-[#00FFAA]">Escanea y paga · confirmación en vivo</p>
+            <div className="mx-auto mt-1.5 w-fit rounded-md border border-[#00FFAA]/20 bg-[#00FFAA]/5 px-2 py-1 font-mono text-[8px] text-[#00FFAA]">
+              ✓ Cobro confirmado · 23s
+            </div>
+          </div>
+
+          {/* Tabs de la app */}
+          <div className="mt-3.5 flex items-center justify-around rounded-xl bg-[#111111] py-2 text-[8px] font-bold">
+            <span className="text-[#00FFAA]">Cobrar</span>
+            <span className="text-zinc-500">Enviar</span>
+            <span className="text-zinc-500">Agente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Landing() {
   return (
     <main className="min-h-dvh bg-[#0A0A0A] text-white antialiased">
@@ -173,29 +254,9 @@ export default function Landing() {
             </Reveal>
           </div>
 
-          {/* Mockup del terminal */}
-          <Reveal delay={300}>
-            <div className="relative mx-auto w-full max-w-[300px]">
-              <div className="pointer-events-none absolute inset-0 rounded-3xl bg-[#00FFAA]/10 blur-2xl" />
-              <div className="relative animate-float rounded-3xl border border-white/10 bg-[#111111] p-8 text-center">
-                <p className="text-[11px] uppercase tracking-[0.3em] text-zinc-500">Esperando pago</p>
-                <p className="mt-3 text-5xl font-black leading-none tracking-tight tabular-nums">$12.50</p>
-                <div className="mx-auto mt-6 w-fit rounded-2xl bg-white p-4 animate-pulse-ring">
-                  <QRCodeSVG
-                    value="caja://demo-12.50"
-                    size={150}
-                    fgColor="#0A0A0A"
-                    bgColor="#FFFFFF"
-                    level="M"
-                    className="h-auto w-[150px]"
-                  />
-                </div>
-                <p className="mt-5 text-sm text-[#00FFAA]">Escanea y paga · confirmación en vivo</p>
-                <p className="mt-4 rounded-lg border border-[#00FFAA]/20 bg-[#00FFAA]/5 px-3 py-2 font-mono text-[11px] text-[#00FFAA]">
-                  ✓ Cobro confirmado · 23s
-                </p>
-              </div>
-            </div>
+          {/* Mockup del teléfono-terminal */}
+          <Reveal delay={300} className="md:mt-0 mt-8">
+            <PhoneMockup />
           </Reveal>
         </div>
       </section>
