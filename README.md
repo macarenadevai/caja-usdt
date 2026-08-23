@@ -48,6 +48,29 @@ Frontend (Next.js) ──HTTP──▶ API (Express) ──subprocess──▶ w
       └──── polling ────────────────▶ Detector de pagos (receipts Sepolia)
 ```
 
+### 🔗 Integración WDK (permalinks)
+
+| Archivo | Rol WDK |
+|---------|---------|
+| [`server/wdk.js`](https://github.com/macarenadevai/caja-usdt/blob/main/server/wdk.js) | Wrapper del **WDK CLI** como subprocess: `wallet unlock`, `get balance`, `get address`, `send --dry-run`, `send` (core) |
+| [`server/agent.js`](https://github.com/macarenadevai/caja-usdt/blob/main/server/agent.js) | Cliente **MCP** → `wdk-mcp` server: el agente lee saldo y propone `send_token` con `dryRun=true` |
+| [`server/payments.js`](https://github.com/macarenadevai/caja-usdt/blob/main/server/payments.js) | Detector de pagos: confirma receipts on-chain (Sepolia RPC) |
+| [`server/package.json`](https://github.com/macarenadevai/caja-usdt/blob/main/server/package.json) | Dependencias WDK declaradas |
+| [`scripts/ensayo.sh`](https://github.com/macarenadevai/caja-usdt/blob/main/scripts/ensayo.sh) | Prueba end-to-end: cobro → pago real → confirmación → ledger |
+
+### 📦 Paquetes WDK instalados
+
+| Paquete | Versión | Uso |
+|---------|---------|-----|
+| `@tetherto/wdk` | 1.0.0-beta.6 | Core del kit (SDK) |
+| `@tetherto/wdk-cli` | 1.0.0-beta.2 | CLI con `wdk-mcp` bundled — subprocess core del server |
+| `@tetherto/wdk-wallet-evm` | 1.0.0-beta.11 | Wallet EVM (Sepolia, USDT) |
+| `@tetherto/wdk-wallet-evm-erc-4337` | 1.0.0-beta.6 | Módulo ERC-4337 (futuro gasless) |
+
+> El agente usa el **`wdk-mcp` server** (bundled con el CLI) como bloque
+> central: `connectMcp()` lo lanza como subprocess y expone sus tools
+> (`get_balance`, `get_address`, `send_token`, …) al LLM vía MCP.
+
 ## Stack
 
 - **Frontend**: Next.js 16, React 19, Tailwind CSS v4, TypeScript
@@ -108,6 +131,7 @@ Pide **USDT + ETH** a la dirección de la caja (`wdk get address --network sepol
 | GET | `/api/transactions` | Ledger completo |
 | POST | `/api/agent/message` `{text}` | Chat con el agente |
 | POST | `/api/agent/confirm` `{proposalId}` | Confirma un envío propuesto |
+| POST | `/api/agent/reject` `{proposalId}` | Rechaza/cancela una propuesta |
 
 ## Seguridad
 
@@ -123,7 +147,7 @@ Pide **USDT + ETH** a la dirección de la caja (`wdk get address --network sepol
 |----------|---------------|---------|
 | Core wallet | WDK CLI como subprocess | Prize 1: CLI como core building block; datos oficiales |
 | Confirmación de pagos | Receipts on-chain (RPC Sepolia) | Estado real, no simulado |
-| Detector de pagos | Polling FIFO por balance (5s) | Simple, consistente |
+| Detector de pagos | Eventos `Transfer` on-chain (`eth_getLogs`) | Matcheo por monto exacto; un fondeo no marca pagos falsos |
 | Agente AI | MCP client → `wdk-mcp` + DeepSeek | Prize 1: MCP server como bloque central |
 | Frontend | Next.js + Tailwind v4 (template ZTL) | Estética definida, build rápido |
 | Almacenamiento | `state.json` atómico | Cero deps, suficiente para la demo |
