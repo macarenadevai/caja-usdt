@@ -2,14 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowRight, Bot, HandCoins, Send } from "lucide-react";
+import { ArrowRight, Banknote, Bot, HandCoins, Send, WifiOff } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
-/*  Caja — landing (ruta "/") — minimalista, directa, animada          */
-/*  La app vive en "/app". Animaciones CSS-only + IntersectionObserver.*/
+/*  Caja — landing (ruta "/")                                          */
+/*  4 piezas de info: qué es · para qué sirve · cómo funciona ·        */
+/*  problemática. Minimalista y animada (CSS-only + IntersectionObs).  */
 /* ------------------------------------------------------------------ */
 
-/** Reveal on scroll: fade + slide-up cuando entra en viewport. */
 function Reveal({
   children,
   delay = 0,
@@ -51,15 +51,41 @@ function Reveal({
   );
 }
 
-const PASOS = [
-  { icon: HandCoins, titulo: "Cobra", detalle: "Monto → QR. Tu cliente paga con cualquier wallet." },
-  { icon: Send, titulo: "Envía", detalle: "Remesas y pagos con tracking en vivo." },
-  { icon: Bot, titulo: "Delega", detalle: "Tu agente propone, tú confirmas." },
+const PROBLEMAS = [
+  {
+    icon: Banknote,
+    titulo: "Cobrar en dólares",
+    detalle: "Sin banco en EE.UU., las pasarelas te cobran 5-8% o te rechazan.",
+  },
+  {
+    icon: Send,
+    titulo: "Remesas",
+    detalle: "6-10% de comisión en intermediarios y sin tracking real.",
+  },
+  {
+    icon: WifiOff,
+    titulo: "Apps cripto",
+    detalle: "Hechas para traders, no para negocios que solo quieren cobrar.",
+  },
 ] as const;
 
-const DOLORES = ["Bancos que te excluyen", "Remesas con 8% de comisión", "Wallets hechas para traders"];
-
-const STACK = ["WDK CLI", "wdk-mcp", "PWA", "Self-custody"];
+const PASOS = [
+  {
+    icon: HandCoins,
+    titulo: "Cobra",
+    detalle: "Pon el monto y genera un QR. Tu cliente paga con cualquier wallet y la confirmación llega en vivo.",
+  },
+  {
+    icon: Send,
+    titulo: "Envía",
+    detalle: "Remesas y pagos directos, rastreados en-chain: Enviado → Confirmado.",
+  },
+  {
+    icon: Bot,
+    titulo: "Delega",
+    detalle: "Tu agente revisa saldos y propone pagos — nada se ejecuta sin tu confirmación.",
+  },
+] as const;
 
 export default function Landing() {
   return (
@@ -82,7 +108,7 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* ===== Hero ===== */}
+      {/* ===== Hero: qué es + para qué sirve ===== */}
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[#00FFAA]/10 blur-3xl" />
         <div className="relative mx-auto grid max-w-4xl items-center gap-12 px-5 pb-20 pt-16 md:grid-cols-[1.1fr_0.9fr] md:pb-28 md:pt-24">
@@ -94,12 +120,13 @@ export default function Landing() {
             </Reveal>
             <Reveal delay={120}>
               <h1 className="mt-6 text-[2.75rem] font-black leading-[1.02] tracking-tight md:text-6xl">
-                Tu celular es tu <span className="text-[#00FFAA]">terminal de cobro</span>
+                La caja registradora de tu negocio, <span className="text-[#00FFAA]">en USD₮</span>
               </h1>
             </Reveal>
             <Reveal delay={240}>
               <p className="mt-5 max-w-md text-lg text-zinc-400">
-                Cobra, envía y delega pagos en USD₮. Sin banco, sin comisiones, sin KYC.
+                Cobra, envía y delega pagos en dólares estables desde tu celular.
+                Sin banco, sin comisiones de 8%, sin KYC.
               </p>
             </Reveal>
             <Reveal delay={360}>
@@ -118,19 +145,9 @@ export default function Landing() {
                 </a>
               </div>
             </Reveal>
-            <Reveal delay={480}>
-              <ul className="mt-8 space-y-2 text-sm text-zinc-500">
-                {DOLORES.map((d) => (
-                  <li key={d} className="flex items-center gap-2">
-                    <span className="h-1 w-1 rounded-full bg-[#00FFAA]" />
-                    {d}
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
           </div>
 
-          {/* Mockup del terminal — animación flotante sutil */}
+          {/* Mockup del terminal */}
           <Reveal delay={300}>
             <div className="relative mx-auto w-full max-w-[300px]">
               <div className="pointer-events-none absolute inset-0 rounded-3xl bg-[#00FFAA]/10 blur-2xl" />
@@ -157,15 +174,45 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ===== Problema ===== */}
+      <section className="border-t border-white/5 py-16 md:py-20">
+        <div className="mx-auto max-w-4xl px-5">
+          <Reveal>
+            <h2 className="max-w-xl text-2xl font-black leading-tight tracking-tight md:text-3xl">
+              Operar en dólares desde LATAM <span className="text-[#00FFAA]">es caro o imposible</span>
+            </h2>
+          </Reveal>
+          <div className="mt-8 grid gap-3 md:grid-cols-3">
+            {PROBLEMAS.map((p, i) => {
+              const Icon = p.icon;
+              return (
+                <Reveal key={p.titulo} delay={i * 140}>
+                  <div className="h-full rounded-2xl border border-white/10 bg-white/[0.02] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#00FFAA]/40">
+                    <Icon className="h-5 w-5 text-[#00FFAA]" />
+                    <h3 className="mt-4 text-base font-black">{p.titulo}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-zinc-400">{p.detalle}</p>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+          <Reveal delay={200}>
+            <p className="mt-6 text-sm text-zinc-500">
+              Caja lo resuelve: tu celular se vuelve la terminal y el USD₮ tu moneda.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
       {/* ===== Cómo funciona ===== */}
-      <section id="como-funciona" className="border-t border-white/5 py-20 md:py-24">
+      <section id="como-funciona" className="border-t border-white/5 py-16 md:py-20">
         <div className="mx-auto max-w-4xl px-5">
           <Reveal>
             <h2 className="text-2xl font-black tracking-tight md:text-3xl">
               De QR a confirmación <span className="text-[#00FFAA]">en segundos</span>
             </h2>
           </Reveal>
-          <div className="mt-10 grid gap-3 md:grid-cols-3">
+          <div className="mt-8 grid gap-3 md:grid-cols-3">
             {PASOS.map((p, i) => {
               const Icon = p.icon;
               return (
@@ -184,21 +231,11 @@ export default function Landing() {
               );
             })}
           </div>
-          <Reveal delay={200}>
-            <p className="mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-zinc-500">
-              {STACK.map((s, i) => (
-                <span key={s} className="flex items-center gap-2">
-                  {i > 0 && <span className="text-white/15">·</span>}
-                  <span className="font-bold text-zinc-400">{s}</span>
-                </span>
-              ))}
-            </p>
-          </Reveal>
         </div>
       </section>
 
       {/* ===== CTA final ===== */}
-      <section className="relative overflow-hidden py-20 md:py-28">
+      <section className="relative overflow-hidden py-20 md:py-24">
         <div className="pointer-events-none absolute bottom-0 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-[#00FFAA]/10 blur-3xl" />
         <Reveal className="relative mx-auto max-w-2xl px-5 text-center">
           <h2 className="text-3xl font-black leading-tight tracking-tight md:text-5xl">
