@@ -1,5 +1,5 @@
 /**
- * index.js — API REST de Caja (localhost:8788)
+ * index.js — API REST de Quinto (localhost:8788)
  *
  * Fase 1: status, balance, address, send, transactions.
  * Fase 2 (a continuación): invoices + detector de pagos.
@@ -202,7 +202,7 @@ app.post("/api/send", async (req, res) => {
 
 // ---- Root ----
 app.get("/", (req, res) => {
-  res.json({ name: "Caja API", version: "1.0.0", endpoints: ["/api/status", "/api/balance", "/api/address", "/api/send", "/api/transactions"] });
+  res.json({ name: "Quinto API", version: "1.0.0", endpoints: ["/api/status", "/api/balance", "/api/address", "/api/send", "/api/transactions"] });
 });
 
 // ---- Agente (Fase 5) ----
@@ -247,6 +247,6 @@ app.post("/api/agent/reject", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`⚡ Caja API escuchando en http://localhost:${PORT}`);
+  console.log(`⚡ Quinto API escuchando en http://localhost:${PORT}`);
   payments.startPoller();
 });

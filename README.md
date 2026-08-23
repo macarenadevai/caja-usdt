@@ -1,8 +1,8 @@
-# 🧾 Caja — tu negocio en USD₮
+# 🧾 Quinto — tu negocio en USD₮
 
 **Aleph Hackathon 2026 · WDK Track (Tether)**
 
-Caja convierte la wallet de un negocio en una caja registradora en USD₮:
+Quinto convierte la wallet de un negocio en una caja registradora en USD₮:
 **cobra** con QR y confirmación en vivo, **envía** remesas con tracking estilo
 paquetería, y **delega** la operación a un agente AI que conecta al WDK a
 través de MCP. Todo non-custodial, multi-chain, sin bancos.

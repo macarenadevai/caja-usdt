@@ -1,4 +1,4 @@
-// lib/api.ts — Cliente del backend Caja (localhost:8788)
+// lib/api.ts — Cliente del backend Quinto (localhost:8788)
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8788";
 

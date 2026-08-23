@@ -1,5 +1,5 @@
 /**
- * state.js — Persistencia del estado de Caja (TD-2: JSON, cero deps)
+ * state.js — Persistencia del estado de Quinto (TD-2: JSON, cero deps)
  *
  * state.json guarda invoices, transfers, proposals y ledger.
  * Escritura atómica: temp file + rename (evita corrupción si el proceso muere).

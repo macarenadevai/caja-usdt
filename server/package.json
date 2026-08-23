@@ -1,7 +1,7 @@
 {
-  "name": "caja-server",
+  "name": "quinto-server",
   "version": "1.0.0",
-  "description": "Backend Caja — WDK CLI wrapper + API REST + agente AI",
+  "description": "Backend Quinto — WDK CLI wrapper + API REST + agente AI",
   "private": true,
   "type": "module",
   "scripts": {

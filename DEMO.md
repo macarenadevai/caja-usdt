@@ -1,4 +1,4 @@
-# 🎬 Guion — Demo de 3 minutos (Caja)
+# 🎬 Guion — Demo de 3 minutos (Quinto)
 
 > **Tesis**: NO es "otra app de pagos con IA". Es **la caja registradora de tu negocio en USD₮**.
 > El juez debe ver en los primeros 20 segundos un **negocio cobrando** — no un chat.
@@ -23,13 +23,13 @@
 
 **Voz**: "En América Latina, si tienes un negocio y quieres operar en dólares... es un problema. Los bancos te piden historial. Las remesas te comen 10%. Y si aceptas cripto... no tienes caja, tienes una wallet complicada."
 
-**Pantalla**: abre la **landing** (`:3000/`) — logo ₮ Caja + "Tu celular es tu terminal de cobro" + el **teléfono-terminal** (la app de Caja corriendo en un iPhone mockup). Scroll rápido: el problema → cómo funciona. Clic "Abrir la app" → entra a la app (`:3000/app`). **Frase clave: "Tu celular es tu terminal punto de venta."**
+**Pantalla**: abre la **landing** (`:3000/`) — logo ₮ Quinto + "Tu celular es tu terminal de cobro" + el **teléfono-terminal** (la app de Quinto corriendo en un iPhone mockup). Scroll rápido: el problema → cómo funciona. Clic "Abrir la app" → entra a la app (`:3000/app`). **Frase clave: "Tu celular es tu terminal punto de venta."**
 
 ---
 
 ## 0:15 — Cobrar (40s) ⭐ EL MOMENTO ESTRELLA
 
-**Voz**: "Caja convierte tu wallet en una caja registradora. Abres la vista Cobrar, pones el monto... y listo: tu cliente paga con lo que sea que tenga — hasta una wallet que nadie instaló para esto."
+**Voz**: "Quinto convierte tu wallet en una caja registradora. Abres la vista Cobrar, pones el monto... y listo: tu cliente paga con lo que sea que tenga — hasta una wallet que nadie instaló para esto."
 
 **Pantalla** (frontend `:3000/app` → tab Cobrar):
 1. Monto `12.50` → se genera el **QR** al instante (pantalla-terminal: monto gigante + QR)
@@ -47,7 +47,7 @@
 
 ## 0:55 — Enviar (25s)
 
-**Voz**: "Y cuando el negocio tiene que mandar dinero —una remesa, un proveedor— Caja lo envía con tracking. Como un paquete, pero para dinero."
+**Voz**: "Y cuando el negocio tiene que mandar dinero —una remesa, un proveedor— Quinto lo envía con tracking. Como un paquete, pero para dinero."
 
 **Pantalla** (tab Enviar):
 1. Dirección + monto `8` → confirmar
@@ -57,7 +57,7 @@
 
 ---
 
-## 1:20 — Delegar (40s) — "el agente de caja"
+## 1:20 — Delegar (40s) — "el agente de Quinto"
 
 **Voz**: "Y lo mejor: no tienes que tocar la caja. Le hablas a tu agente de caja... y él propone, tú confirmas."
 
@@ -73,7 +73,7 @@
 
 **Voz**: "Una caja. Un solo libro de cuentas. Todo tu negocio en USD₮: lo que cobras, lo que envías, lo que delegas. Sin bancos, sin intermediarios, sin que tu cliente sepa siquiera qué es una blockchain."
 
-**Pantalla**: historial/ledger final (cobro +12.50, envíos confirmados) → volver a la **landing** → logo ₮ + "Caja — tu negocio en USD₮ · construido con Tether WDK".
+**Pantalla**: historial/ledger final (cobro +12.50, envíos confirmados) → volver a la **landing** → logo ₮ + "Quinto — tu negocio en USD₮ · construido con Tether WDK".
 
 ---
 

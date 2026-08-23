@@ -1,6 +1,6 @@
-# SPEC — "Caja" · Aleph Hackathon 2026 (WDK Track)
+# SPEC — "Quinto" · Aleph Hackathon 2026 (WDK Track)
 
-**Working name**: Caja — tu negocio en USD₮
+**Working name**: Quinto — tu negocio en USD₮
 **Evento**: Aleph Hackathon 6ª edición · WDK Track (Tether)
 **Timeline**: 22 ago 12:00 → 23 ago 12:00 ARG · quedan ~18h al momento del spec
 **Status**: Draft v1.0 — para aprobación de Richi
@@ -221,11 +221,11 @@ Errores: `{error: string, code: string}` con HTTP 400/404/409/500.
 
 ## 10. Guion Demo (video 3 min)
 
-1. **Hook (15s)**: "Tu negocio cobra y paga en USD₮ sin banco, y un agente AI lo opera. Esto es Caja." + pantalla dashboard.
+1. **Hook (15s)**: "Tu negocio cobra y paga en USD₮ sin banco, y un agente AI lo opera. Esto es Quinto." + pantalla dashboard.
 2. **Cobrar (60s)**: monto $25 → QR → pago desde la wallet pagador → confetti + invoice *pagada*.
 3. **Agente (60s)**: "¿cuánto tengo?" → balance real → "págale $10 a 0x..." → propuesta → confirmar → ejecuta.
 4. **Tracking (30s)**: el envío en el ledger con stepper *enviado → confirmado*.
-5. **Cierre (15s)**: "Caja corre sobre el WDK CLI de Tether — non-custodial, multi-chain, sin contratos. Código abierto en GitHub."
+5. **Cierre (15s)**: "Quinto corre sobre el WDK CLI de Tether — non-custodial, multi-chain, sin contratos. Código abierto en GitHub."
 
 **Nota**: el video puede ser en español (juicio bilingüe). Cámara alta, una sola ventana, sin edición compleja — el flujo se cuenta solo.
 

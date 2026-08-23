@@ -14,12 +14,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Caja — tu negocio en USD₮",
+  title: "Quinto — tu negocio en USD₮",
   description: "Cobra, envía y delega pagos en USD₮. Tu celular es tu terminal de punto de venta.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Caja",
+    title: "Quinto",
   },
   other: {
     "apple-mobile-web-app-capable": "yes",

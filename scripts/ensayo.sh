@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ensayo completo de Caja: cobro → pago real on-chain → confirmación → envío
+# Ensayo completo de Quinto: cobro → pago real on-chain → confirmación → envío
 # Uso: ./scripts/ensayo.sh [monto]
 set -euo pipefail
 

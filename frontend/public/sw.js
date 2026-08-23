@@ -1,5 +1,5 @@
-/* Service Worker de Caja — offline-first para el shell, network para la API */
-const CACHE = "caja-v1";
+/* Service Worker de Quinto — offline-first para el shell, network para la API */
+const CACHE = "quinto-v1";
 const SHELL = ["/", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/icon-maskable-512.png"];
 
 self.addEventListener("install", (e) => {

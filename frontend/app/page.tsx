@@ -5,7 +5,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { ArrowRight, Banknote, Bot, HandCoins, Send, WifiOff } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
-/*  Caja — landing (ruta "/")                                          */
+/*  Quinto — landing (ruta "/")                                          */
 /*  4 piezas de info: qué es · para qué sirve · cómo funciona ·        */
 /*  problemática. Minimalista y animada (CSS-only + IntersectionObs).  */
 /* ------------------------------------------------------------------ */
@@ -125,7 +125,7 @@ const PASOS = [
 /**
  * Mockup del teléfono-terminal — CSS puro.
  * Comunica la tesis "tu celular es tu terminal punto de venta":
- * marco de iPhone con isla dinámica, la app de Caja en pantalla
+ * marco de iPhone con isla dinámica, la app de Quinto en pantalla
  * (monto + QR + confirmación) y tabs inferiores, todo animado.
  */
 function PhoneMockup() {
@@ -139,66 +139,66 @@ function PhoneMockup() {
       <div className="absolute -right-[4px] top-32 h-16 w-[4px] rounded-r-md bg-[#333] " />
 
       {/* Marco — titanio oscuro, esquinas muy redondeadas (iPhone real) */}
-      <div className="relative animate-float rounded-[3.1rem] border-[9px] border-[#2E3554] bg-[#14172B] p-2.5 shadow-[0_30px_90px_rgba(0,0,0,0.75)]">
+      <div className="relative flex aspect-[9/19.5] animate-float flex-col rounded-[3.4rem] border-[9px] border-[#2E3554] bg-[#14172B] p-2.5 shadow-[0_30px_90px_rgba(0,0,0,0.75)]">
         {/* Isla dinámica */}
-        <div className="relative mx-auto mt-0.5 flex h-7 w-28 items-center justify-center rounded-full bg-black">
-          <div className="absolute left-7 flex h-3 w-3 items-center justify-center rounded-full bg-[#111]">
+        <div className="relative mx-auto mt-1 flex h-8 w-32 shrink-0 items-center justify-center rounded-full bg-black">
+          <div className="absolute left-8 flex h-3 w-3 items-center justify-center rounded-full bg-[#111]">
             <div className="h-1.5 w-1.5 rounded-full bg-[#2A4365]" />
           </div>
-          <div className="h-3 w-12 rounded-full bg-[#0B0E1A]" />
+          <div className="h-3 w-14 rounded-full bg-[#0B0E1A]" />
         </div>
 
         {/* Pantalla */}
-        <div className="mt-2.5 overflow-hidden rounded-[2.4rem] bg-[#14172B] px-4 pb-3.5">
+        <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[2.6rem] bg-[#14172B] px-5 pb-4">
           {/* Status bar */}
-          <div className="flex items-center justify-between px-1 pt-2 text-[10px] font-bold text-zinc-500">
+          <div className="flex shrink-0 items-center justify-between px-1 pt-3 text-[11px] font-bold text-zinc-500">
             <span>9:41</span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2 w-3.5 rounded-[2px] bg-zinc-500" />
+              <span className="inline-block h-2.5 w-4 rounded-[2px] bg-zinc-500" />
               <span className="inline-block h-2.5 w-2.5 rounded-full bg-zinc-500" />
-              <span className="inline-block h-2 w-4 rounded-[3px] border border-zinc-500 p-[1px]">
+              <span className="inline-block h-2.5 w-5 rounded-[3px] border border-zinc-500 p-[1px]">
                 <span className="block h-full w-2/3 rounded-[1px] bg-zinc-500" />
               </span>
             </span>
           </div>
 
           {/* Header de la app */}
-          <div className="mt-2.5 flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#9BE8C8] text-xs font-black text-black">
+          <div className="mt-3 flex shrink-0 items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#9BE8C8] text-sm font-black text-black">
               ₮
             </span>
-            <span className="text-xs font-black tracking-tight">Caja</span>
-            <span className="ml-auto rounded-md bg-[#9BE8C8]/10 px-2 py-0.5 font-mono text-[9px] font-bold text-[#9BE8C8]">
+            <span className="text-sm font-black tracking-tight">Quinto</span>
+            <span className="ml-auto rounded-md bg-[#9BE8C8]/10 px-2 py-0.5 font-mono text-[10px] font-bold text-[#9BE8C8]">
               93.75 USDT
             </span>
           </div>
 
-          {/* Monto + QR */}
-          <div className="mt-4 text-center">
-            <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-zinc-500">
+          {/* Monto + QR — bloque central, respira entre header y tabs */}
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center py-2 text-center">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-500">
               Monto a cobrar
             </p>
-            <p className="mt-1.5 text-5xl font-black leading-none tracking-tight tabular-nums">
+            <p className="mt-2 text-5xl font-black leading-none tracking-tight tabular-nums">
               $12.50
             </p>
-            <div className="mx-auto mt-3 w-fit animate-pulse-ring rounded-xl bg-white p-2">
+            <div className="mx-auto mt-4 w-fit animate-pulse-ring rounded-2xl bg-white p-2.5">
               <QRCodeSVG
-                value="caja://demo-12.50"
-                size={96}
+                value="quinto://demo-12.50"
+                size={110}
                 fgColor="#14172B"
                 bgColor="#FFFFFF"
                 level="M"
-                className="h-auto w-[96px]"
+                className="h-auto w-[110px]"
               />
             </div>
-            <p className="mt-2.5 text-[10px] font-medium text-[#9BE8C8]">Escanea y paga · confirmación en vivo</p>
-            <div className="mx-auto mt-1.5 w-fit rounded-lg border border-[#9BE8C8]/20 bg-[#9BE8C8]/5 px-2.5 py-1 font-mono text-[9px] text-[#9BE8C8]">
+            <p className="mt-3 text-[11px] font-medium text-[#9BE8C8]">Escanea y paga · confirmación en vivo</p>
+            <div className="mt-2 w-fit rounded-lg border border-[#9BE8C8]/20 bg-[#9BE8C8]/5 px-3 py-1.5 font-mono text-[10px] text-[#9BE8C8]">
               ✓ Cobro confirmado · 23s
             </div>
           </div>
 
           {/* Tabs de la app */}
-          <div className="mt-4 flex items-center justify-around rounded-xl bg-[#1C2038] py-2 text-[9px] font-bold">
+          <div className="flex shrink-0 items-center justify-around rounded-xl bg-[#1C2038] py-2.5 text-[10px] font-bold">
             <span className="text-[#9BE8C8]">Cobrar</span>
             <span className="text-zinc-500">Enviar</span>
             <span className="text-zinc-500">Agente</span>
@@ -219,7 +219,7 @@ export default function Landing() {
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#9BE8C8] text-lg font-black text-black">
               ₮
             </span>
-            <span className="text-lg font-black tracking-tight">Caja</span>
+            <span className="text-lg font-black tracking-tight">Quinto</span>
           </a>
           <a
             href="/app"
@@ -257,7 +257,7 @@ export default function Landing() {
                   href="/app"
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#9BE8C8] px-6 py-3.5 text-lg font-bold text-black transition-all hover:bg-[#7BCFAF] hover:shadow-[0_0_32px_rgba(0,255,170,0.4)]"
                 >
-                  Abrir Caja <ArrowRight className="h-5 w-5" />
+                  Abrir Quinto <ArrowRight className="h-5 w-5" />
                 </a>
                 <a
                   href="#como-funciona"
@@ -300,7 +300,7 @@ export default function Landing() {
           </div>
           <Reveal delay={200}>
             <p className="mt-6 text-sm text-zinc-500">
-              Caja lo resuelve: tu celular se vuelve la terminal y el USD₮ tu moneda.
+              Quinto lo resuelve: tu celular se vuelve la terminal y el USD₮ tu moneda.
             </p>
           </Reveal>
         </div>
@@ -360,7 +360,7 @@ export default function Landing() {
             <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#9BE8C8] text-xs font-black text-black">
               ₮
             </span>
-            Caja · tu negocio en USD₮
+            Quinto · tu negocio en USD₮
           </span>
           <span>Aleph 2026 · WDK by Tether</span>
         </div>

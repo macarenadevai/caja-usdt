@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Caja — tu negocio en USD₮",
-    short_name: "Caja",
+    name: "Quinto — tu negocio en USD₮",
+    short_name: "Quinto",
     description: "Cobra, envía y delega pagos en USD₮. Tu celular es tu terminal de punto de venta.",
     start_url: "/",
     display: "standalone",

@@ -21,7 +21,7 @@ export default function Agente() {
     {
       id: nextId++,
       role: "agent",
-      text: "Hola 👋 Soy tu agente de caja. Pregúntame el saldo o pídeme hacer un envío, por ejemplo: \"envía 5 USDT a 0x…\".",
+      text: "Hola 👋 Soy tu agente de Quinto. Pregúntame el saldo o pídeme hacer un envío, por ejemplo: \"envía 5 USDT a 0x…\".",
     },
   ]);
   const [input, setInput] = useState("");
@@ -173,7 +173,7 @@ export default function Agente() {
                 <span className="typing-dot h-1.5 w-1.5 rounded-full bg-[#9BE8C8]" />
                 <span className="typing-dot h-1.5 w-1.5 rounded-full bg-[#9BE8C8]" />
               </div>
-              <span className="ml-1">Caja está pensando…</span>
+              <span className="ml-1">Quinto está pensando…</span>
             </div>
           </div>
         )}

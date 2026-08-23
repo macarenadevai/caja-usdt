@@ -1,5 +1,5 @@
 /**
- * agent.js — Agente de Caja (Fase 5)
+ * agent.js — Agente de Quinto (Fase 5)
  *
  * Conecta un MCP client al wdk-mcp server (Tether) y un LLM (DeepSeek)
  * con function calling. El agente:
@@ -18,7 +18,7 @@ const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
 const MODEL = "deepseek-chat";
 const MAX_LOOP = 6;
 
-const SYSTEM_PROMPT = `Eres "Caja", el agente financiero de un negocio pequeño que opera en USD₮ (Tether).
+const SYSTEM_PROMPT = `Eres "Quinto", el agente financiero de un negocio pequeño que opera en USD₮ (Tether).
 
 Tu trabajo: ayudar al dueño a manejar su caja usando las herramientas disponibles (balance, dirección, envíos, redes).
 
@@ -44,7 +44,7 @@ export async function connectMcp() {
     },
     stderr: "pipe",
   });
-  const client = new Client({ name: "caja-agent", version: "1.0.0" });
+  const client = new Client({ name: "quinto-agent", version: "1.0.0" });
   try {
     await client.connect(transport);
   } catch (e) {

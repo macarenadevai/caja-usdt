@@ -47,7 +47,7 @@ export default function Home() {
               ₮
             </div>
             <div>
-              <h1 className="text-lg font-black leading-none">Caja</h1>
+              <h1 className="text-lg font-black leading-none">Quinto</h1>
               <p className="mt-0.5 text-xs text-zinc-500">tu negocio en USD₮</p>
             </div>
           </div>
