@@ -48,9 +48,8 @@ function Reveal({
     );
     io.observe(el);
 
-    // Fallback: si el observer no dispara pero el elemento ya está en
-    // viewport (usuario llegó), forzar visible en ≤1s. Nunca fuerza
-    // visible si el usuario aún no ha bajado (preserva la animación).
+    // Fallback 1: si el observer no dispara pero el elemento ya está en
+    // viewport (usuario llegó), forzar visible en ≤1s.
     const t = setInterval(() => {
       const r = el.getBoundingClientRect();
       if (r.top < window.innerHeight && r.bottom > 0) {
@@ -60,8 +59,18 @@ function Reveal({
       }
     }, 1000);
 
+    // Fallback 2 (garantía total): pase lo que pase (webview, observer roto,
+    // scroll en contenedor interno), el contenido SIEMPRE se revela a los 3.5s.
+    // La animación es un refuerzo estético, nunca un bloqueo de contenido.
+    const max = setTimeout(() => {
+      el.classList.remove("reveal-hidden");
+      io.disconnect();
+      clearInterval(t);
+    }, 3500);
+
     return () => {
       clearInterval(t);
+      clearTimeout(max);
       io.disconnect();
     };
   }, []);
@@ -121,69 +130,75 @@ const PASOS = [
  */
 function PhoneMockup() {
   return (
-    <div className="relative mx-auto w-[250px]">
+    <div className="relative mx-auto w-[310px]">
       {/* Glow */}
-      <div className="pointer-events-none absolute -inset-10 rounded-[4rem] bg-[#00FFAA]/15 blur-3xl" />
+      <div className="pointer-events-none absolute -inset-12 rounded-[4.5rem] bg-[#00FFAA]/15 blur-3xl" />
       {/* Botones laterales */}
-      <div className="absolute -left-[3px] top-24 h-8 w-[3px] rounded-l bg-[#2A2A2A]" />
-      <div className="absolute -left-[3px] top-36 h-8 w-[3px] rounded-l bg-[#2A2A2A]" />
-      <div className="absolute -right-[3px] top-28 h-14 w-[3px] rounded-r bg-[#2A2A2A]" />
+      <div className="absolute -left-[4px] top-24 h-9 w-[4px] rounded-l-md bg-[#333] " />
+      <div className="absolute -left-[4px] top-36 h-9 w-[4px] rounded-l-md bg-[#333] " />
+      <div className="absolute -right-[4px] top-32 h-16 w-[4px] rounded-r-md bg-[#333] " />
 
-      {/* Marco */}
-      <div className="relative animate-float rounded-[2.6rem] border-[6px] border-[#2A2A2A] bg-[#0A0A0A] p-2 shadow-[0_24px_80px_rgba(0,0,0,0.7)]">
+      {/* Marco — titanio oscuro, esquinas muy redondeadas (iPhone real) */}
+      <div className="relative animate-float rounded-[3.1rem] border-[9px] border-[#3A3A3A] bg-[#0A0A0A] p-2.5 shadow-[0_30px_90px_rgba(0,0,0,0.75)]">
         {/* Isla dinámica */}
-        <div className="relative mx-auto mt-0.5 flex h-6 w-24 items-center justify-center rounded-full bg-black">
-          <div className="h-2.5 w-8 rounded-full bg-[#0D0D0D]" />
+        <div className="relative mx-auto mt-0.5 flex h-7 w-28 items-center justify-center rounded-full bg-black">
+          <div className="absolute left-7 flex h-3 w-3 items-center justify-center rounded-full bg-[#111]">
+            <div className="h-1.5 w-1.5 rounded-full bg-[#1E3A5F]" />
+          </div>
+          <div className="h-3 w-12 rounded-full bg-[#0D0D0D]" />
         </div>
 
         {/* Pantalla */}
-        <div className="mt-2 overflow-hidden rounded-[2rem] bg-[#0A0A0A] px-3.5 pb-3">
+        <div className="mt-2.5 overflow-hidden rounded-[2.4rem] bg-[#0A0A0A] px-4 pb-3.5">
           {/* Status bar */}
-          <div className="flex items-center justify-between px-1 pt-1.5 text-[9px] font-bold text-zinc-500">
+          <div className="flex items-center justify-between px-1 pt-2 text-[10px] font-bold text-zinc-500">
             <span>9:41</span>
-            <span className="flex items-center gap-1">
-              <span className="inline-block h-1.5 w-3 rounded-[2px] bg-zinc-500" />
-              <span className="inline-block h-2 w-2 rounded-full bg-zinc-500" />
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2 w-3.5 rounded-[2px] bg-zinc-500" />
+              <span className="inline-block h-2.5 w-2.5 rounded-full bg-zinc-500" />
+              <span className="inline-block h-2 w-4 rounded-[3px] border border-zinc-500 p-[1px]">
+                <span className="block h-full w-2/3 rounded-[1px] bg-zinc-500" />
+              </span>
             </span>
           </div>
 
           {/* Header de la app */}
-          <div className="mt-2 flex items-center gap-1.5">
-            <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#00FFAA] text-[10px] font-black text-black">
+          <div className="mt-2.5 flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#00FFAA] text-xs font-black text-black">
               ₮
             </span>
-            <span className="text-[10px] font-black tracking-tight">Caja</span>
-            <span className="ml-auto rounded-md bg-[#00FFAA]/10 px-1.5 py-0.5 font-mono text-[8px] font-bold text-[#00FFAA]">
+            <span className="text-xs font-black tracking-tight">Caja</span>
+            <span className="ml-auto rounded-md bg-[#00FFAA]/10 px-2 py-0.5 font-mono text-[9px] font-bold text-[#00FFAA]">
               93.75 USDT
             </span>
           </div>
 
           {/* Monto + QR */}
-          <div className="mt-3 text-center">
-            <p className="text-[8px] font-bold uppercase tracking-[0.3em] text-zinc-500">
+          <div className="mt-4 text-center">
+            <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-zinc-500">
               Monto a cobrar
             </p>
-            <p className="mt-1 text-4xl font-black leading-none tracking-tight tabular-nums">
+            <p className="mt-1.5 text-5xl font-black leading-none tracking-tight tabular-nums">
               $12.50
             </p>
-            <div className="mx-auto mt-2.5 w-fit animate-pulse-ring rounded-lg bg-white p-1.5">
+            <div className="mx-auto mt-3 w-fit animate-pulse-ring rounded-xl bg-white p-2">
               <QRCodeSVG
                 value="caja://demo-12.50"
-                size={82}
+                size={96}
                 fgColor="#0A0A0A"
                 bgColor="#FFFFFF"
                 level="M"
-                className="h-auto w-[82px]"
+                className="h-auto w-[96px]"
               />
             </div>
-            <p className="mt-2 text-[9px] text-[#00FFAA]">Escanea y paga · confirmación en vivo</p>
-            <div className="mx-auto mt-1.5 w-fit rounded-md border border-[#00FFAA]/20 bg-[#00FFAA]/5 px-2 py-1 font-mono text-[8px] text-[#00FFAA]">
+            <p className="mt-2.5 text-[10px] font-medium text-[#00FFAA]">Escanea y paga · confirmación en vivo</p>
+            <div className="mx-auto mt-1.5 w-fit rounded-lg border border-[#00FFAA]/20 bg-[#00FFAA]/5 px-2.5 py-1 font-mono text-[9px] text-[#00FFAA]">
               ✓ Cobro confirmado · 23s
             </div>
           </div>
 
           {/* Tabs de la app */}
-          <div className="mt-3.5 flex items-center justify-around rounded-xl bg-[#111111] py-2 text-[8px] font-bold">
+          <div className="mt-4 flex items-center justify-around rounded-xl bg-[#111111] py-2 text-[9px] font-bold">
             <span className="text-[#00FFAA]">Cobrar</span>
             <span className="text-zinc-500">Enviar</span>
             <span className="text-zinc-500">Agente</span>
