@@ -1,6 +1,7 @@
-// lib/api.ts — Cliente del backend Quinto (localhost:8788)
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8788";
+// lib/api.ts — Cliente del backend Quinto.
+// Usa ruta relativa: Next proxya /api/* → localhost:8788 (ver next.config.ts).
+// Así funciona desde cualquier origin (localhost, LAN, Tailscale) sin CORS.
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export interface Invoice {
   id: string;
