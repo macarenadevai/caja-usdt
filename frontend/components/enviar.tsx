@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { api, type Transfer, type Contact, formatUsd, shortAddress, friendlyLabel } from "@/lib/api";
-import { Check, CircleAlert, Clock, Loader2, RotateCcw, Send, TriangleAlert } from "lucide-react";
+import { Check, CircleAlert, Clock, Loader2, RotateCcw, Send, TriangleAlert, BookUser } from "lucide-react";
 import Recibo from "./recibo";
+import Contactos from "./contactos";
 
 interface LedgerEntry {
   type: "invoice" | "send";
@@ -44,6 +45,7 @@ export default function Enviar() {
   const [transfer, setTransfer] = useState<Transfer | null>(null);
   const [history, setHistory] = useState<LedgerEntry[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [verContactos, setVerContactos] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [aliasInput, setAliasInput] = useState("");
   const [guardarError, setGuardarError] = useState("");
@@ -177,9 +179,17 @@ export default function Enviar() {
     <div className="mx-auto w-full max-w-md">
       {!transfer && (
         <div className="rounded-2xl border border-[#2A3050] bg-[#1C2038] p-8">
-          <label className="mb-2 block text-sm font-medium text-zinc-400" htmlFor="destino">
-            ¿A quién le pagas? (contacto o dirección)
-          </label>
+          <div className="mb-2 flex items-center justify-between">
+            <label className="text-sm font-medium text-zinc-400" htmlFor="destino">
+              ¿A quién le pagas?
+            </label>
+            <button
+              onClick={() => setVerContactos(true)}
+              className="flex items-center gap-1.5 rounded-lg border border-[#2A3050] bg-[#1C2038] px-2.5 py-1.5 text-xs font-bold text-[#9BE8C8] transition hover:border-[#9BE8C8]/50"
+            >
+              <BookUser className="h-3.5 w-3.5" /> Contactos ({contacts.length})
+            </button>
+          </div>
           <input
             id="destino"
             type="text"
@@ -210,32 +220,53 @@ export default function Enviar() {
               ))}
             </div>
           )}
-          {esDireccion && !aliasDe(to) && !guardando && (
-            <button
-              onClick={() => setGuardando(true)}
-              className="mt-2 flex items-center gap-1.5 rounded-lg border border-dashed border-[#F2D98C]/40 px-3 py-1.5 text-xs font-bold text-[#F2D98C] transition hover:bg-[#F2D98C]/10"
-            >
-              💾 Guardar esta dirección como contacto
-            </button>
-          )}
-          {guardando && (
-            <div className="mt-2">
-              <div className="flex gap-2">
-                <input
-                  value={aliasInput}
-                  onChange={(e) => setAliasInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && guardarContacto()}
-                  placeholder="Alias (ej. Ferretería López)"
-                  className="w-full rounded-lg border border-[#2A3050] bg-[#14172B] px-3 py-2 text-sm text-white outline-none placeholder:text-zinc-500 focus:border-[#F2D98C]"
-                />
-                <button
-                  onClick={guardarContacto}
-                  className="rounded-lg bg-[#F2D98C] px-3 text-sm font-bold text-black transition hover:bg-[#E8C978]"
-                >
-                  Guardar
-                </button>
-              </div>
-              {guardarError && <p className="mt-1 text-xs text-red-400">{guardarError}</p>}
+          {esDireccion && !aliasDe(to) && (
+            <div className="mt-3 rounded-xl border border-dashed border-[#F2D98C]/60 bg-[#F2D98C]/5 p-3">
+              {!guardando ? (
+                <>
+                  <p className="text-xs font-bold text-[#F2D98C]">
+                    💾 ¿Guardar esta dirección como contacto?
+                  </p>
+                  <button
+                    onClick={() => setGuardando(true)}
+                    className="mt-2 w-full rounded-lg border border-[#F2D98C]/50 py-2.5 text-sm font-bold text-[#F2D98C] transition hover:bg-[#F2D98C]/10"
+                  >
+                    Guardar como contacto
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs font-bold text-[#F2D98C]">
+                    Ponle un nombre para usarla más rápido:
+                  </p>
+                  <input
+                    value={aliasInput}
+                    onChange={(e) => setAliasInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && guardarContacto()}
+                    placeholder="Nombre (ej. Ferretería López)"
+                    autoFocus
+                    className="mt-2 w-full rounded-lg border border-[#2A3050] bg-[#14172B] px-3 py-2.5 text-sm text-white outline-none placeholder:text-zinc-500 focus:border-[#F2D98C]"
+                  />
+                  {guardarError && <p className="mt-1 text-xs text-red-400">{guardarError}</p>}
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      onClick={guardarContacto}
+                      className="flex-1 rounded-lg bg-[#F2D98C] py-2.5 text-sm font-bold text-black transition hover:bg-[#E8C978]"
+                    >
+                      Guardar contacto
+                    </button>
+                    <button
+                      onClick={() => {
+                        setGuardando(false);
+                        setGuardarError("");
+                      }}
+                      className="rounded-lg border border-[#2A3050] px-4 py-2.5 text-sm font-bold text-zinc-400"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           )}
           <label className="mb-2 mt-4 block text-sm font-medium text-zinc-400" htmlFor="monto-enviar">
@@ -457,6 +488,15 @@ export default function Enviar() {
             })}
           </div>
         </div>
+      )}
+      {verContactos && (
+        <Contactos
+          onSeleccionar={(c) => {
+            setTo(c.address);
+            setVerContactos(false);
+          }}
+          onCerrar={() => setVerContactos(false)}
+        />
       )}
     </div>
   );
