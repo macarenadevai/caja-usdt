@@ -38,15 +38,28 @@ export interface StatusResponse {
 }
 
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    ...init,
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error((data as { error?: string })?.error || `HTTP ${res.status}`);
+  // Timeout de 12s: si el backend no responde, la UI no se queda colgada.
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 12_000);
+  try {
+    const res = await fetch(`${API_URL}${path}`, {
+      headers: { "Content-Type": "application/json" },
+      ...init,
+      signal: ctrl.signal,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error((data as { error?: string })?.error || `HTTP ${res.status}`);
+    }
+    return data as T;
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "AbortError") {
+      throw new Error("El servidor no respondió (timeout)");
+    }
+    throw e;
+  } finally {
+    clearTimeout(timer);
   }
-  return data as T;
 }
 
 export const api = {

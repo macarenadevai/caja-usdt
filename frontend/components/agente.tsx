@@ -153,7 +153,12 @@ export default function Agente() {
                   <p className="mt-1 text-xl font-black text-white">{formatUsd(m.transfer.amount)}</p>
                   <p className="break-all font-mono text-xs text-zinc-400">→ {shortAddress(m.transfer.to)}</p>
                   <p className="mt-1 text-[11px] text-zinc-500">
-                    Estado: {m.transfer.status === "confirmed" ? "Confirmado ✓" : "Enviado…"}
+                    Estado:{" "}
+                    {m.transfer.status === "confirmed"
+                      ? "Confirmado ✓"
+                      : m.transfer.status === "failed"
+                        ? "Fallido ✗"
+                        : "Enviado…"}
                   </p>
                 </div>
               )}

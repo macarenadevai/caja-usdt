@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { api, type Invoice, formatUsd, shortAddress } from "@/lib/api";
 import { playCashSound } from "@/lib/sound";
@@ -31,18 +31,20 @@ export default function Pdv() {
   // Polling del estado de la invoice hasta que se pague
   const invoiceId = invoice?.id;
   const invoicePaid = invoice?.status === "paid";
+  const prevPaidRef = useRef(false);
   useEffect(() => {
     if (!invoiceId || invoicePaid) return;
+    prevPaidRef.current = false;
     const t = setInterval(async () => {
       try {
         const inv = await api.getInvoice(invoiceId);
-        setInvoice((prev) => {
-          if (prev && prev.id === inv.id && inv.status === "paid" && prev.status !== "paid") {
-            // ¡Momento caja registradora!
-            playCashSound();
-          }
-          return prev && prev.id === inv.id ? inv : prev;
-        });
+        // Side effect FUERA del updater: el sonido se dispara una sola vez
+        // al detectar la transición pending → paid (evita dobles ding).
+        if (inv.status === "paid" && !prevPaidRef.current) {
+          prevPaidRef.current = true;
+          playCashSound();
+        }
+        setInvoice((prev) => (prev && prev.id === inv.id ? inv : prev));
       } catch {
         /* reintenta en el siguiente tick */
       }
@@ -52,9 +54,13 @@ export default function Pdv() {
 
   const copyAddress = async () => {
     if (!invoice) return;
-    await navigator.clipboard.writeText(invoice.address);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    try {
+      await navigator.clipboard.writeText(invoice.address);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard no disponible (contexto no seguro): ignorar */
+    }
   };
 
   const reset = () => {

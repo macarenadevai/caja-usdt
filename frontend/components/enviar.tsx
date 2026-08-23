@@ -90,6 +90,7 @@ export default function Enviar() {
     try {
       const tr = await api.send({ to: to.trim(), amount: Number(amount), confirm: true });
       setTransfer(tr);
+      setSending(false);
       setConfirming(false);
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo enviar");
@@ -120,6 +121,7 @@ export default function Enviar() {
     setAmount("");
     setError("");
     setConfirming(false);
+    setSending(false);
   };
 
   const stepIndex = transfer
