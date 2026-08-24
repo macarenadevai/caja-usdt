@@ -40,7 +40,7 @@ export default function Pdv() {
       try {
         const inv = await api.getInvoice(invoiceId);
         // Side effect FUERA del updater: el sonido se dispara una sola vez
-        // al detectar la transición pending → paid (evita dobles ding).
+        // on the pending → paid transition (avoids double ding).
         if (inv.status === "paid" && !prevPaidRef.current) {
           prevPaidRef.current = true;
           playCashSound();

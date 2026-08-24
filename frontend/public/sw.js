@@ -28,7 +28,7 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // Estáticos: stale-while-revalidate — sirve cache al instante pero
+  // Static: stale-while-revalidate — serve cache instantly but
   // revalida en background (los chunks nuevos siempre se descargan).
   e.respondWith(
     caches.match(e.request).then((cached) => {

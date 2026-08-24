@@ -26,7 +26,7 @@ export default function Home() {
         const b = await api.balance();
         if (alive && b?.formatted) setBalance(b.formatted);
       } catch {
-        /* backend apagado: mantener el último valor */
+        /* backend down: keep the last known value */
       }
     };
     refresh();
